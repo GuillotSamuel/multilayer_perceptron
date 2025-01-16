@@ -1,4 +1,4 @@
-from src.data_processing import load_data
+from src.data_processing import process_data
 # from src.model import build_model
 # from src.training import train_model
 # from src.prediction import make_predictions
@@ -13,12 +13,14 @@ def main() -> None:
 
     Args:
         None
-
     Return:
         None
     """
-    data = load_data("data/raw/data.csv")
-    
+    try:
+        data = process_data()
+
+    except Exception as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
     main()
