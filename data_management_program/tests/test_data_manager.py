@@ -5,7 +5,7 @@ import os
 import pytest
 import pandas as pd
 from src.data_manager import DataManager
-from src.config import RAW_DATA_PATH, RAW_DATA_FILE, COLUMN_NAMES, TRAIN_SIZE, RANDOM_SEED
+from config import RAW_DATA_PATH, RAW_DATA_FILE, COLUMN_NAMES, TRAIN_SIZE, RANDOM_SEED
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -15,7 +15,7 @@ import pytest
 import pandas as pd
 from unittest.mock import patch, MagicMock
 from src.data_manager import DataManager
-from src.config import RAW_DATA_PATH, RAW_DATA_FILE, COLUMN_NAMES, TRAIN_SIZE, RANDOM_SEED
+from config import RAW_DATA_PATH, RAW_DATA_FILE, COLUMN_NAMES, TRAIN_SIZE, RANDOM_SEED
 
 
 # Mocking the raw data path and file for testing

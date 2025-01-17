@@ -1,19 +1,24 @@
 import os
+import sys
 import pandas as pd
 from dataclasses import dataclass, field
-from src.config import RAW_DATA_PATH, RAW_DATA_FILE, COLUMN_NAMES, TRAIN_SIZE, RANDOM_SEED
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+from config import RAW_DATA_PATH, RAW_DATA_FILE, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAIN_SIZE, RANDOM_SEED, COLUMN_NAMES
 
 
 @dataclass
 class DataManager:
     full_dataset: pd.DataFrame = field(init=False)
-    train_dataset: pd.DataFrame = field(init=False)
-    val_dataset: pd.DataFrame = field(init=False)
+    training_dataset: pd.DataFrame = field(init=False)
+    validation_dataset: pd.DataFrame = field(init=False)
     
     def __post_init__(self):
         self.load_data()
         self.clean_data()
         self.divide_data()
+        self.save_splited_data()
 
 
     def load_data(self) -> None:
@@ -67,5 +72,24 @@ class DataManager:
         Returns:
             None
         """
-        self.train_dataset = self.full_dataset.sample(frac=TRAIN_SIZE, random_state=RANDOM_SEED)
-        self.val_dataset = self.full_dataset.drop(self.train_dataset.index)
+        self.training_dataset = self.full_dataset.sample(frac=TRAIN_SIZE, random_state=RANDOM_SEED)
+        self.validation_dataset = self.full_dataset.drop(self.training_dataset.index)
+
+
+    def save_splited_data(self) -> None:
+        """
+        Save the two new datasets in two csv files.
+        Location -> data/processed
+        
+        Args:
+            None
+        Returns:
+            None
+        """
+        os.makedirs(PROCESSED_DATA_PATH, exist_ok=True)
+
+        self.training_dataset.to_csv(f"{PROCESSED_DATA_PATH}/{TRAINING_DATA_FILE}", index=False)
+        self.validation_dataset.to_csv(f"{PROCESSED_DATA_PATH}/{VALIDATION_DATA_FILE}", index=False)
+
+        print(f"Training dataset saved to {PROCESSED_DATA_PATH}/{TRAINING_DATA_FILE}")
+        print(f"Validation dataset saved to {PROCESSED_DATA_PATH}/{VALIDATION_DATA_FILE}")

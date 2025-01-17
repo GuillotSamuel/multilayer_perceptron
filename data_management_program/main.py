@@ -5,11 +5,7 @@ from src.data_manager import DataManager
 
 def main() -> None:
     """
-    Main function to:
-        1. Load and preprocess data
-        2. Build the model
-        3. Train and save the model
-        4. Make predictions and display results
+    Main function to create DataManager class.
 
     Args:
         None

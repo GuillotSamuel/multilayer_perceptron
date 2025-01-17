@@ -11,9 +11,6 @@ VALIDATION_DATA_FILE = "validation.csv"
 TRAIN_SIZE = 0.8
 RANDOM_SEED = 42
 
-# Model parameters
-LEARNING_RATE = 0.001
-
 # Columns names list
 COLUMN_NAMES = [
     "id", "diagnosis",
