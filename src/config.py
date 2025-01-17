@@ -1,13 +1,20 @@
 # config.py
 
+# Data files configuration
 RAW_DATA_PATH = "data/raw"
 RAW_DATA_FILE = "data.csv"
 PROCESSED_DATA_PATH = "data/processed"
 TRAINING_DATA_FILE = "training.csv"
 VALIDATION_DATA_FILE = "validation.csv"
 
+# Data division parameters
+TRAIN_SIZE = 0.8
+RANDOM_SEED = 42
 
+# Model parameters
+LEARNING_RATE = 0.001
 
+# Columns names list
 COLUMN_NAMES = [
     "id", "diagnosis",
     "mean_radius", "mean_texture", "mean_perimeter", "mean_area",

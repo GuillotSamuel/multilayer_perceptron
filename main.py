@@ -1,4 +1,4 @@
-from src.data_processing import process_data
+from src.data_processing import DataManager
 # from src.model import build_model
 # from src.training import train_model
 # from src.prediction import make_predictions
@@ -17,7 +17,7 @@ def main() -> None:
         None
     """
     try:
-        data = process_data()
+        data = DataManager()
 
     except Exception as e:
         print(f"Error: {e}")
