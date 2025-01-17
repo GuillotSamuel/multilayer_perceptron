@@ -16,7 +16,7 @@ class DataManager:
         self.divide_data()
 
 
-    def load_data() -> None:
+    def load_data(self) -> None:
         """
         Load data from a CSV file into a DataFrame.
 
@@ -29,7 +29,7 @@ class DataManager:
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"The file '{RAW_DATA_FILE}' at the path '{RAW_DATA_PATH}' does not exist.")
         try:
-            full_dataset = pd.read_csv(f"{RAW_DATA_PATH}/{RAW_DATA_FILE}",
+            self.full_dataset = pd.read_csv(f"{RAW_DATA_PATH}/{RAW_DATA_FILE}",
                             header=None,
                             names=COLUMN_NAMES)
         except pd.errors.EmptyDataError:
@@ -69,4 +69,3 @@ class DataManager:
         """
         self.train_dataset = self.full_dataset.sample(frac=TRAIN_SIZE, random_state=RANDOM_SEED)
         self.val_dataset = self.full_dataset.drop(self.train_dataset.index)
-        

@@ -13,14 +13,21 @@ git clone https://github.com/GuillotSamuel/multilayer_perceptron
 
 2. Install dependencies
 ```bash
-pip install -r requirements.txt
+make configurations
 ```
 
 ## Usage
 
 Run the project using:
 ```bash
-python main.py
+make
+```
+
+## Debug
+
+Run the debuging pytest functions using:
+```bash
+make tests
 ```
 
 ## Project presentation
