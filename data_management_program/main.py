@@ -1,7 +1,5 @@
 from src.data_manager import DataManager
-# from src.model import build_model
-# from src.training import train_model
-# from src.prediction import make_predictions
+
 
 def main() -> None:
     """
@@ -13,10 +11,11 @@ def main() -> None:
         None
     """
     try:
-        data = DataManager()
+        DataManager()
 
     except Exception as e:
         print(f"Error: {e}")
+
 
 if __name__ == "__main__":
     main()

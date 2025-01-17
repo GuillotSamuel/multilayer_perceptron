@@ -24,7 +24,8 @@ class DataManager:
     def load_data(self) -> None:
         """
         Load data from a CSV file into a DataFrame.
-
+        Add column names.
+        
         Args:
             None
         Returns:
