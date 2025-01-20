@@ -13,6 +13,8 @@ RANDOM_SEED = 42
 
 # Training parameters
 LEARNING_RATE = 0.1
+MINIBATCH_SIZE = 50
+LAYERS_SIZE = [30, 15, 10, 2]
 
 # Columns names list
 COLUMN_NAMES = [
