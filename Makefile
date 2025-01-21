@@ -15,7 +15,7 @@ tests_data_management:
 
 launch_training:
 	@echo "\n$(YELLOW)Starting model training...$(NC)"
-	@python3 training_program/main.py
+	@python3 training_program/main.py --layer 24 24 24 --epochs 84 --loss binaryCrossentropy --batch_size 8 --learning_rate 0.0314
 	@echo "$(GREEN)Model training has ended successfully!$(NC)\n"
 
 tests_training:

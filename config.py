@@ -12,8 +12,12 @@ TRAIN_SIZE = 0.8
 RANDOM_SEED = 42
 
 # Training parameters
+# NETWORK
+LAYER = [24, 24, 24]
+EPOCHS = 84
+LOSS = 'binaryCrossentropy'
 LEARNING_RATE = 0.1
-MINIBATCH_SIZE = 50
+BATCH_SIZE = 50
 LAYERS_SIZE = [30, 15, 10, 2]
 
 # Columns names list
