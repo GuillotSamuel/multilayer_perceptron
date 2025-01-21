@@ -28,8 +28,8 @@ class TrainingManager:
         
         self.check_args()
 
-        self.x_training_dataset = self.load_data(f"{PROCESSED_DATA_PATH}/{TRAINING_DATA_FILE}")
-        self.standardize_data()
+        self.training_dataset = self.load_data(f"{PROCESSED_DATA_PATH}/{TRAINING_DATA_FILE}")
+        self.x_training_dataset, self.y_training_dataset = self.standardize_data()
 
 
     def parse_arguments(self) -> argparse.Namespace:
@@ -163,14 +163,15 @@ class TrainingManager:
         Returns:
             None
         """
-        training_features = self.x_training_dataset.drop(columns=['id', 'diagnosis'])
-        training_labels_diag = self.x_training_dataset['diagnosis']
+        training_features = self.training_dataset.drop(columns=['id', 'diagnosis'])
+        training_labels_diag = self.training_dataset['diagnosis']
 
         mean = training_features.mean()
         std = training_features.std()
         standardized_features = (training_features - mean) / std
-        self.x_training_dataset = standardized_features
-        self.y_training_dataset = training_labels_diag
+        x_training_dataset = standardized_features
+        y_training_dataset = training_labels_diag
+        return x_training_dataset, y_training_dataset
 
 
     def stochastic_gradient_descent(self):
