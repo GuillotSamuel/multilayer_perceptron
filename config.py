@@ -6,6 +6,8 @@ RAW_DATA_FILE = "data.csv"
 PROCESSED_DATA_PATH = "data/processed"
 TRAINING_DATA_FILE = "training.csv"
 VALIDATION_DATA_FILE = "validation.csv"
+LOGS_FOLDER = "logs"
+LOSS_LOGS_FILE = "training_loss.csv"
 
 # Data division parameters
 TRAIN_SIZE = 0.8

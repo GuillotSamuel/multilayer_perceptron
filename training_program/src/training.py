@@ -3,9 +3,10 @@ import sys
 import pandas as pd
 import numpy as np
 import argparse
+import random
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from config import RAW_DATA_PATH, RAW_DATA_FILE, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE
+from config import RAW_DATA_PATH, RAW_DATA_FILE, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, LOGS_FOLDER, LOSS_LOGS_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE
 
 class TrainingManager:
     
@@ -29,7 +30,12 @@ class TrainingManager:
         self.check_args()
 
         self.training_dataset = self.load_data(f"{PROCESSED_DATA_PATH}/{TRAINING_DATA_FILE}")
-        self.x_training_dataset, self.y_training_dataset = self.standardize_data()
+        self.X, self.Y = self.standardize_data()
+
+        self.log_data_training_loss = []
+
+        self.initialize_model()
+        self.train()
 
 
     def parse_arguments(self) -> argparse.Namespace:
@@ -169,37 +175,73 @@ class TrainingManager:
         mean = training_features.mean()
         std = training_features.std()
         standardized_features = (training_features - mean) / std
+
         x_training_dataset = standardized_features
         y_training_dataset = training_labels_diag
+
         return x_training_dataset, y_training_dataset
 
 
-    def stochastic_gradient_descent(self):
+    def initialize_model(self):
         """
-        Apply backpropagation on all values to update weights and biases.
-        
+        Initialize the neural network model by setting up weights and biases for each layer.
+
         Args:
             None
         Returns:
             None
         """
-        pass
+        self.model = {}
+        input_size = self.X.shape[1]
         
-    def backprop(self):
+        for i, layer_size in enumerate(self.layers):
+            self.model[f"W{i+1}"] = np.random.randn(input_size, layer_size) * 0.01
+            self.model[f"b{i+1}"] = np.zeros((1, layer_size))
+            input_size = layer_size
+
+
+    def train(self):
         """
         
         """
-        pass
+        for epoch in range(self.epochs):
+            predictions = self.forward_propagation(self.X)
+            loss = self.compute_loss(predictions, self.Y)
+            gradients = self.backward_propagation(self.X, self.Y, predictions)
+            self.update_parameters(gradients)
+            self.log_data_training_loss.append([epoch + 1, loss])
+        self.save_logs()
+
+    
+    def save_logs(self) -> None:
+        """
+        Saving logs into a CSV file.
+        """
+        if self.log_data_training_loss:
+            log_df = pd.DataFrame(self.log_data_training_loss, columns=["Epoch", "Loss"])
             
-    def evaluate(self) -> int:
-        """
-        
-        """
-        pass
+            if not os.path.exists(LOGS_FOLDER):
+                os.makedirs(LOGS_FOLDER)
+            
+            log_df.to_csv(f"{LOGS_FOLDER}/{LOSS_LOGS_FILE}", index=False)
+            print(f"Logs saved in {LOGS_FOLDER}/{LOSS_LOGS_FILE}")
+        else:
+            print(f"No datas to put in {LOGS_FOLDER}/{LOSS_LOGS_FILE}.")
 
-
-    def sigmoid(self) -> None:
+            
+    def forward_propagation(self, X):
+        """"""
         pass
     
-    def softmax(seld) -> None:
-        pass
+    
+    def compute_loss(self, predictions, Y):
+        """"""
+    
+        
+    def backward_propagation(self, X, Y, predictions):
+        """"""
+    
+    
+    def update_parameters(self, gradients):
+        """"""
+            
