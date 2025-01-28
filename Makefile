@@ -10,24 +10,15 @@ launch_data_management:
 	@python3 data_management_program/main.py
 	@echo "$(GREEN)Data management has ended successfully!$(NC)\n"
 
-tests_data_management:
-	@python3 data_management_program/tests/run_tests.py
-
 launch_training:
 	@echo "\n$(YELLOW)Starting model training...$(NC)"
-	@python3 training_program/main.py --layer 24 24 24 --epochs 84 --loss binaryCrossentropy --batch_size 8 --learning_rate 0.0314
+	@python3 training_program/main.py --layer 24 24 12 --epochs 84 --loss binaryCrossentropy --batch_size 8 --learning_rate 0.0314
 	@echo "$(GREEN)Model training has ended successfully!$(NC)\n"
-
-tests_training:
-	@python3 training_program/tests/run_tests.py
 
 launch_prediction:
 	@echo "\n$(YELLOW)Starting predictions...$(NC)"
 	@python3 prediction_program/main.py
 	@echo "$(GREEN)Predictions has ended successfully!$(NC)\n"
-
-tests_prediction:
-	@python3 prediction_program/tests/run_tests.py
 
 configure:
 	@echo "$(YELLOW)Starting environment configuration...$(NC)"

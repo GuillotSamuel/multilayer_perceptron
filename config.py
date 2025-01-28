@@ -8,6 +8,8 @@ TRAINING_DATA_FILE = "training.csv"
 VALIDATION_DATA_FILE = "validation.csv"
 LOGS_FOLDER = "logs"
 LOSS_LOGS_FILE = "training_loss.csv"
+MODEL_PATH = "model"
+MODEL_FILE = "model.npz"
 
 # Data division parameters
 TRAIN_SIZE = 0.8
@@ -15,12 +17,12 @@ RANDOM_SEED = 42
 
 # Training parameters
 # NETWORK
-LAYER = [24, 24, 24]
+LAYER = [24, 24, 12]
 EPOCHS = 84
 LOSS = 'binaryCrossentropy'
 LEARNING_RATE = 0.1
 BATCH_SIZE = 50
-LAYERS_SIZE = [30, 15, 10, 2]
+# LAYERS_SIZE = [30, 15, 10, 2]
 
 # Columns names list
 COLUMN_NAMES = [
