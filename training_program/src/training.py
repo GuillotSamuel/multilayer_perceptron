@@ -21,8 +21,14 @@ class TrainingManager:
         self.batch_size = args.batch_size
         self.learning_rate = args.learning_rate
 
+        self.losses_train = []
+        self.accuracies_train = []
+        self.losses_validation = []
+        self.accuracies_validation = []
+
         self.train()
         self.validate()
+        self.create_plots()
 
 
     def parse_arguments(self) -> argparse.Namespace:
@@ -141,22 +147,37 @@ class TrainingManager:
 
     def backpropagate(self, X: np.ndarray, Y: np.ndarray, model: dict) -> dict:
         
-        return
+        return gradients
         
         
-    def update_weights_and_display(self, model: dict, gradients: dict, epoch: int, X: np.ndarray, Y: np.ndarray) -> None:
+    def update_weights(self, model: dict, gradients: dict) -> None:
         
-        return
+        pass
 
 
     def train(self) -> None:
         dataset = self.load_file(f"{PROCESSED_DATA_PATH}/{TRAINING_DATA_FILE}")
         results = self.load_file(f"{PROCESSED_DATA_PATH}/{TRAINING_RESULTS_FILE}")
+
         X, Y = self.standardize_data(dataset, results)
         model = self.initialize_model(X)
+
         for epoch in range(self.epochs):
+
             A = self.forward_propagation(model, X)
+
             loss = self.binary_crossentropy(Y, A)
+            self.losses.append(loss)
+
+            accuracy = self.compute_accuracy(Y, A)
+            self.accuracies_train.append(accuracy)
+
+            gradients = self.backpropagate(X, Y, model)
+            self.update_weights(model, gradients)
 
     def validate(self) -> None:
         pass
+
+
+    def create_plots(self) -> None:
+
