@@ -143,16 +143,56 @@ class TrainingManager:
         loss = -np.mean(Y_true * np.log(Y_pred) + (1 - Y_true) * np.log(1 - Y_pred))
 
         return loss
+    
+    
+    def compute_accuracy(self, Y_true: np.ndarray, Y_predicted: np.ndarray) -> float: # FALSE BECAUSE ONLY BINARY MANAGED
+        Y_pred_labels = (Y_predicted >= 0.5).astype(int)
+        accuracy = np.mean(Y_pred_labels == Y_true)
+        return accuracy
 
 
     def backpropagate(self, X: np.ndarray, Y: np.ndarray, model: dict) -> dict:
-        
+        gradients = {}
+        m = X.shape[0]
+
+        A = [X]
+        Z = []
+
+        for i in range(len(self.layer)):
+            Z_i = np.dot(A[-1], model[f"W{i+1}"]) + model[f"b{i+1}"]
+            Z.append(Z_i)
+
+            if self.activation[i] == "sigmoid":
+                A_i = self.sigmoid(Z_i)
+            elif self.activation[i] == "softmax":
+                A_i = self.softmax(Z_i)
+            
+            A.append(A_i)
+            
+            dA = A[-1] - Y
+
+            for i in reversed(range(len(self.layers))):
+                if self.activation[i] == "sigmoid":
+                    dZ = dA * A[i+1] * (1 - A[i+1])
+                elif self.activation[i] == "softmax":
+                    dZ = dA
+                
+                dW = np.dot(A[i].T, dZ) / m
+                db = np.sum(dZ, axis=0, keepdims=True) / m
+                
+                gradients[f"dW{i+1}"] = dW
+                gradients[f"db{i+1}"] = db
+
+                if i > 0:
+                    dA = np.dot(dZ, model[f"W{i+1}"].T)
+
         return gradients
         
         
     def update_weights(self, model: dict, gradients: dict) -> None:
-        
-        pass
+        for i in range(len(self.layers)):
+            model[f"W{i+1}"] -= self.learning_rate * gradients[f"dW{i+1}"]
+            model[f"b{i+1}"] -= self.learning_rate * gradients[f"db{i+1}"]
 
 
     def train(self) -> None:
@@ -180,4 +220,4 @@ class TrainingManager:
 
 
     def create_plots(self) -> None:
-
+        pass
