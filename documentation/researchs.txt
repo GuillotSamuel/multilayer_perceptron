@@ -1128,3 +1128,73 @@ Détection robuste des entrées hors distribution
 Mesures de confiance multiples
 Explication des rejets
 Métriques d'évaluation adaptées
+
+
+# NORMALISATION OU STANDARDISATION ? #
+
+Le choix entre normalisation (mise à l'échelle entre 0 et 1) et standardisation (moyenne = 0, écart-type = 1) dépend de la nature de tes données et du modèle que tu utilises. Voici un guide pour t'aider à choisir :
+
+1. Quand utiliser la standardisation ?
+La standardisation est généralement préférable dans la plupart des cas, surtout pour les modèles basés sur des distances ou des gradients (comme les MLP). Voici les situations où elle est recommandée :
+
+Données avec des distributions non uniformes :
+
+Si tes données ont des distributions asymétriques (ex : données avec des outliers), la standardisation est plus robuste car elle ne se limite pas à un intervalle fixe comme [0, 1].
+
+Modèles sensibles à l'échelle des données :
+
+Les modèles comme les réseaux de neurones (MLP), SVM, k-means, PCA, ou la régression linéaire bénéficient grandement de la standardisation, car ils reposent sur des calculs de distances ou de gradients.
+
+Données avec des échelles très différentes :
+
+Si tes features ont des unités ou des échelles très différentes (ex : âge [0-100] vs revenu [0-100000]), la standardisation permet de les mettre sur un pied d'égalité.
+
+Utilisation de régularisation :
+
+Si tu utilises des techniques de régularisation comme L1/L2 (par exemple dans la régression logistique ou les SVM), la standardisation est cruciale pour que les coefficients soient pénalisés de manière équitable.
+
+2. Quand utiliser la normalisation ?
+La normalisation (mise à l'échelle entre 0 et 1) est utile dans des cas plus spécifiques :
+
+Données avec des limites connues :
+
+Si tes données ont des limites naturelles (ex : pixels d'une image [0-255] ou pourcentages [0-100]), la normalisation est intuitive et préserve ces limites.
+
+Modèles basés sur des distances probabilistes :
+
+Si tu utilises des modèles comme les k-plus proches voisins (k-NN) ou les méthodes basées sur des noyaux (kernel methods), la normalisation peut être utile pour que toutes les features contribuent de manière équilibrée.
+
+Données avec peu ou pas d'outliers :
+
+La normalisation est sensible aux outliers, car elle repose sur les valeurs minimales et maximales. Si tes données sont bien comportées (sans outliers), la normalisation peut fonctionner.
+
+Réseaux de neurones avec des fonctions d'activation spécifiques :
+
+Si tu utilises des fonctions d'activation comme la sigmoïde ou tanh, qui produisent des sorties dans un intervalle limité (ex : [0, 1] ou [-1, 1]), la normalisation peut aider à aligner les données avec la dynamique de la fonction.
+
+3. Quand ne pas normaliser/standardiser ?
+Dans certains cas, tu n'as pas besoin de normaliser ou standardiser :
+
+Données catégorielles : Si tes données sont déjà encodées (ex : one-hot encoding), elles sont déjà sur une échelle comparable.
+
+Arbres de décision et forêts aléatoires : Ces modèles ne sont pas sensibles à l'échelle des données, car ils divisent les données en fonction des valeurs, pas des distances.
+
+Résumé : Que choisir ?
+Standardisation : Utilise-la dans la plupart des cas, surtout pour les modèles sensibles à l'échelle (MLP, SVM, régression linéaire, etc.).
+
+Normalisation : Utilise-la si tes données ont des limites naturelles ou si tu utilises des modèles basés sur des distances probabilistes (k-NN, kernel methods).
+
+Pas de transformation : Si tu utilises des modèles insensibles à l'échelle (arbres de décision, forêts aléatoires) ou si tes données sont déjà bien comportées.
+
+En résumé, pour un MLP, la standardisation est généralement le meilleur choix, sauf si tes données ont des limites naturelles ou si tu as une raison spécifique de préférer la normalisation. 😊
+
+
+# DATA TYPES ACCEPTED BY MLP #
+
+
+Les MLP (Multi-Layer Perceptrons) des bibliothèques comme TensorFlow/Keras, PyTorch ou Scikit-learn n'acceptent que des données numériques comme entrée. Si ton jeu de données contient des chaînes de caractères, il faut les convertir en nombres avant de les utiliser dans un MLP.
+
+Types de données acceptées par un MLP
+Un MLP attend : ✅ Tableaux de nombres → [ [0.1, 2.3, 4.5], [1.2, 3.4, 5.6] ]
+❌ Texte brut → "chien", "chat", "oiseau" (À convertir)
+❌ Données catégoriques → "rouge", "vert", "bleu" (À encoder)
