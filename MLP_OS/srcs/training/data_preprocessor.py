@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 
 class Data_preprocessor:
@@ -8,9 +9,18 @@ class Data_preprocessor:
         """
         Convert class labels to one-hot encoded format
         """
+        if isinstance(y, pd.DataFrame):
+            y = y.values
+
+        y = np.array(y).flatten()
+
+        if y.dtype.kind in {'U', 'S', 'O'}:
+            unique_classes, y = np.unique(y, return_inverse=True)
+
         if num_classes is None:
             num_classes = len(np.unique(y))
-        return np.eye(num_classes)[y.reshape(-1)]
+
+        return np.eye(num_classes, dtype=int)[y]
 
 
     @staticmethod

@@ -1,28 +1,44 @@
-import numpy as pd
+import os
+import sys
+import pandas as pd
+import numpy as np
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from config_g import RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE
 
 from srcs.training.activation import Activation
 from srcs.training.cost import Cost
 from srcs.training.data_preprocessor import Data_preprocessor
 from srcs.training.initialization import Initialization
-from srcs.training.monitoring import Monitoring
-from srcs.training.optimisation import Optimisation
 from srcs.training.utils import Utils
 
 class Training:
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """  """
         
-        args = Initialization.parse_arguments()
-
         # MLP Parameters
+        self.training_data = Utils.load_file(f"{PROCESSED_DATA_PATH}/{TRAINING_DATA_FILE}")
+        self.training_results = Utils.load_file(f"{PROCESSED_DATA_PATH}/{TRAINING_RESULTS_FILE}")
+        self.validation_data = Utils.load_file(f"{PROCESSED_DATA_PATH}/{VALIDATION_DATA_FILE}")
+        self.validation_results = Utils.load_file(f"{PROCESSED_DATA_PATH}/{VALIDATION_RESULTS_FILE}")
+        
+        args = Initialization.parse_arguments(self.training_data, self.validation_data,
+                                              self.training_results, self.validation_results)
+
         self.layers = args.layer
-        self.activation = args.activation
-        self.weight_initializer = args.weight_initializer
         self.epochs = args.epochs
-        self.loss_function = args.loss
+        self.loss = args.loss
         self.batch_size = args.batch_size
         self.learning_rate = args.learning_rate
-        self.num_outputs = Initialization.count_outputs()
+        self.activation = args.activation
+        self.weight_initializer = args.weight_initializer
+        self.num_inputs = args.num_inputs
+        self.num_outputs = args.num_outputs
+        
+        self.print_variables() # TEST
+        
+        self.parameters = {}
 
         # Logs
         self.losses_train = []
@@ -32,22 +48,137 @@ class Training:
         
         # Training Process
         self.train()
-        self.validate_training()
-        self.create_logs()
-        Utils.save_model()
+        # self.validate_training()
+        # self.create_logs()
+        # Utils.save_model()
+        
+    def print_variables(self) -> None: # TEST
+        """
+        Print all variables of the object in a readable format.
+        """
+        print("\n--- Training Manager Variables ---\n")
+        for attr, value in self.__dict__.items():
+            print(f"{attr}: {value}")
+        print("-----------------------------------")
         
         
     def train(self) -> None:
-        pass
-    
-    
+        """  """
+        X = Data_preprocessor.normalize_data(self.training_data)
+        Y = Data_preprocessor.one_hot_encode(self.training_results)
+        Initialization.initialize_weights(self.parameters, self.layers, self.weight_initializer)
+        
+        for epoch in range(self.epochs):
+            A, cache = self.forward_propagation(self.parameters, X)
+            
+            loss = Cost.compute_loss(A, Y, self.loss)
+            self.losses_train.append(loss)
+
+            accuracy = self.compute_accuracy(A, Y)
+            self.accuracies_train.append(accuracy)
+
+            gradients = self.back_propagation(X, Y, self.parameters, cache)
+            self.update_weights(self.parameters, gradients)
+            
+            if epoch % 1000 == 0 or epoch == self.epochs - 1:  # Affiche tous les 10 epochs
+                self.print_predictions_comparison(A, Y, num_samples=5)
+
     def validate_training(self) -> None:
         pass
-    
-    
+
+
     def create_logs(self) -> None:
         pass
 
+
+    """ TRAINING FUNCTIONS """
+
+    def forward_propagation(self, parameters, X):
+        """  """
+        cache = {'A0': X.copy()}
+        A = X
+
+        for i in range(len(self.layers) - 1):
+            layer_idx = i + 1
+            W = parameters[f"W{layer_idx}"]
+            b = parameters[f"b{layer_idx}"]
+
+            Z = np.dot(A, W.T) + b.T
+            cache[f"Z{layer_idx}"] = Z
+            
+            A = Activation.activation_g(Z, self.activation[i], derivative = False)
+            
+            cache[f"A{layer_idx}"] = A.copy()
+
+        return A, cache
+    
+
+    def compute_accuracy(self, A, Y):
+        Y_pred_labels = np.argmax(A, axis=1)
+        Y_true_labels = np.argmax(Y, axis=1)
+        return np.mean(Y_pred_labels == Y_true_labels)
+    
+    
+    def back_propagation(self, X, Y, parameters, cache):
+        gradients = {}
+        m = X.shape[0]
+        num_layers = len(self.layers) - 1
+        
+        AL = cache[f'A{num_layers}']
+        dZ = AL - Y
+        
+        A_prev = cache[f'A{num_layers-1}']
+        gradients[f'dW{num_layers}'] = (1/m) * np.dot(dZ.T, A_prev)
+        gradients[f'db{num_layers}'] = (1/m) * np.sum(dZ, axis=0, keepdims=True).T
+        
+        for l in reversed(range(1, num_layers)):
+            W_next = parameters[f'W{l+1}']
+            dA = np.dot(dZ, W_next)
+            
+            Z_current = cache[f'Z{l}']
+            activation_type = self.activation[l-1]
+            dZ = dA * Activation.activation_g(Z_current, activation_type, derivative=True)
+            
+            A_prev = cache[f'A{l-1}']
+            gradients[f'dW{l}'] = (1/m) * np.dot(dZ.T, A_prev)
+            gradients[f'db{l}'] = (1/m) * np.sum(dZ, axis=0, keepdims=True).T
+        
+        return gradients
+    
+    
+    def update_weights(self, parameters, gradients):
+        L = len(self.layers) - 1
+        for l in range(1, L+1):
+            parameters[f"W{l}"] -= self.learning_rate * gradients[f"dW{l}"]
+            parameters[f"b{l}"] -= self.learning_rate * gradients[f"db{l}"]
+
+
+    def print_predictions_comparison(self, A, Y, num_samples=10): # TEST
+        """
+        Affiche un échantillon des prédictions vs les vraies valeurs
+        """
+        # Convertir les one-hot en labels de classe
+        Y_pred_labels = np.argmax(A, axis=1)
+        Y_true_labels = np.argmax(Y, axis=1)
+        
+        # Sélectionner un sous-échantillon
+        indices = np.random.choice(len(Y), num_samples, replace=False)
+        
+        # Créer un DataFrame pour l'affichage
+        results = pd.DataFrame({
+            'Sample Index': indices,
+            'Predicted Class': Y_pred_labels[indices],
+            'Actual Class': Y_true_labels[indices],
+            'Correct': Y_pred_labels[indices] == Y_true_labels[indices]
+        })
+        
+        # Ajouter les probabilités de chaque classe
+        prob_df = pd.DataFrame(A[indices], columns=[f'Class {i}_prob' for i in range(A.shape[1])])
+        results = pd.concat([results, prob_df], axis=1)
+        
+        print("\n=== Predictions vs Actual Values (Sample) ===")
+        print(results.to_string(index=False))
+        print("===========================================\n")
 
 if __name__ == "__main__":
     Training()

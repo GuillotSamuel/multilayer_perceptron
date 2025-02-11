@@ -1,8 +1,35 @@
 import numpy as np
 
+
 class Activation:
     
     @staticmethod
+    def activation_g(Z, activation_type, derivative=False):
+        if activation_type == "sigmoid":
+            A = Activation.sigmoid(Z, derivative)
+        elif activation_type == "tanh":
+            A = Activation.tanh(Z, derivative)
+        elif activation_type == "relu":
+            A = Activation.relu(Z, derivative)
+        elif activation_type == "leakyRelu":
+            A = Activation.leaky_relu(Z, derivative)
+        elif activation_type == "elu":
+            A = Activation.elu(Z, derivative)
+        elif activation_type == "softmax":
+            A = Activation.softmax(Z)
+        elif activation_type == "swish":
+            A = Activation.swish(Z, derivative)
+        elif activation_type == "gelu":
+            A = Activation.gelu(Z, derivative)
+        elif activation_type == "selu":
+            A = Activation.selu(Z, derivative)
+        elif activation_type == "mish":
+            A = Activation.mish(Z, derivative)
+        else:
+            raise ValueError("Activation function not supported")
+        return A
+
+
     def sigmoid(x, derivative=False):
         """
         Sigmoid activation function: f(x) = 1 / (1 + e^(-x))
@@ -13,7 +40,6 @@ class Activation:
         return sigmoid_x
     
     
-    @staticmethod
     def tanh(x, derivative=False):
         """
         Hyperbolic tangent activation function: f(x) = (e^x - e^(-x)) / (e^x + e^(-x))
@@ -23,7 +49,6 @@ class Activation:
         return np.tanh(x)
 
 
-    @staticmethod
     def relu(x, derivative=False):
         """
         Rectified Linear Unit (ReLU): f(x) = max(0, x)
@@ -33,7 +58,6 @@ class Activation:
         return np.maximum(0, x)
 
 
-    @staticmethod
     def leaky_relu(x, alpha=0.01, derivative=False):
         """
         Leaky ReLU: f(x) = max(αx, x) where α is a small positive constant
@@ -43,7 +67,6 @@ class Activation:
         return np.where(x > 0, x, x * alpha)
 
 
-    @staticmethod
     def elu(x, alpha=1.0, derivative=False):
         """
         Exponential Linear Unit (ELU): f(x) = x if x > 0 else α(e^x - 1)
@@ -52,7 +75,6 @@ class Activation:
             return np.where(x > 0, 1, alpha * np.exp(x))
         return np.where(x > 0, x, alpha * (np.exp(x) - 1))
 
-    @staticmethod
     def softmax(x, derivative=False):
         """
         Softmax activation function: f(x_i) = e^(x_i) / Σ(e^(x_j))
@@ -64,7 +86,6 @@ class Activation:
         return exp_x / np.sum(exp_x, axis=-1, keepdims=True)
 
 
-    @staticmethod
     def swish(x, beta=1.0, derivative=False):
         """
         Swish activation function: f(x) = x * sigmoid(βx)
@@ -75,7 +96,6 @@ class Activation:
         return x * sigmoid_bx
 
 
-    @staticmethod
     def gelu(x, derivative=False):
         """
         Gaussian Error Linear Unit (GELU): f(x) = x * Φ(x)
@@ -88,7 +108,6 @@ class Activation:
         return 0.5 * x * (1 + np.tanh(np.sqrt(2/np.pi) * (x + 0.044715 * x**3)))
 
 
-    @staticmethod
     def selu(x, derivative=False):
         """
         Scaled Exponential Linear Unit (SELU)
@@ -101,7 +120,6 @@ class Activation:
         return scale * np.where(x > 0, x, alpha * (np.exp(x) - 1))
 
 
-    @staticmethod
     def mish(x, derivative=False):
         """
         Mish activation function: f(x) = x * tanh(softplus(x))

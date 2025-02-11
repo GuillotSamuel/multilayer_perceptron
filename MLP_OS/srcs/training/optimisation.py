@@ -1,5 +1,0 @@
-
-
-
-class Optimisation:
-    pass
