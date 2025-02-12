@@ -9,9 +9,9 @@ VALIDATION_DATA_FILE = "validation.csv"
 TRAINING_RESULTS_FILE = "training_results.csv"
 VALIDATION_RESULTS_FILE = "validation_results.csv"
 LOGS_FOLDER = "logs"
-LOSS_LOGS_FILE = "training_loss.csv"
+LOSS_LOGS_FILE = "training_logs.png"
 MODEL_PATH = "model"
-MODEL_FILE = "model.npz"
+MODEL_FILE = "model"
 
 # Data division parameters
 TRAIN_SIZE = 0.80

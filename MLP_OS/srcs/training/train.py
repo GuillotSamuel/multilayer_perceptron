@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from config_g import RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE
+from config_g import RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LOGS_FOLDER, LOSS_LOGS_FILE, MODEL_PATH, MODEL_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE
 
 from srcs.training.activation import Activation
 from srcs.training.cost import Cost
@@ -50,7 +50,20 @@ class Training:
         # Training Process
         self.train()
         self.create_logs()
-        # Utils.save_model()
+        
+        # Saving the Model
+        self.model_config = {
+            'layers': self.layers,
+            'epochs': self.epochs,
+            'loss': self.loss,
+            'batch_size': self.batch_size,
+            'learning_rate': self.learning_rate,
+            'activation': self.activation,
+            'weight_initializer': self.weight_initializer,
+            'num_inputs': self.num_inputs,
+            'num_outputs': self.num_outputs
+        }        
+        Utils.save_model(MODEL_PATH, MODEL_FILE, self.parameters, self.model_config)
 
 
     def print_variables(self) -> None: # TEST
@@ -70,55 +83,86 @@ class Training:
         X_val = Data_preprocessor.normalize_data(self.validation_data)
         Y_val = Data_preprocessor.one_hot_encode(self.validation_results)
         Initialization.initialize_weights(self.parameters, self.layers, self.weight_initializer)
+        
+        X_len = X.shape[0]
 
+        X = X.to_numpy() if hasattr(X, 'to_numpy') else np.array(X)
+        Y = Y.to_numpy() if hasattr(Y, 'to_numpy') else np.array(Y)
+      
         for epoch in range(self.epochs):
-            A, cache = self.forward_propagation(self.parameters, X)
+            permutation = np.random.permutation(X_len)
+            X_shuffled = X[permutation]
+            Y_shuffled = Y[permutation]
             
-            loss = Cost.compute_loss(A, Y, self.loss)
-            self.losses_train.append(loss)
-
-            accuracy = self.compute_accuracy(A, Y)
-            self.accuracies_train.append(accuracy)
-
-            gradients = self.back_propagation(X, Y, self.parameters, cache)
-            self.update_weights(self.parameters, gradients)
+            for i in range(0, X_len, self.batch_size):
+                X_batch = X_shuffled[i:i+self.batch_size]
+                Y_batch = Y_shuffled[i:i+self.batch_size]
             
+                A_batch, cache_batch = self.forward_propagation(self.parameters, X_batch)
+
+                gradients = self.back_propagation(X_batch, Y_batch, self.parameters, cache_batch)
+
+                self.update_weights(self.parameters, gradients)
+
+            A_train, _ = self.forward_propagation(self.parameters, X)
+            loss_train = Cost.compute_loss(A_train, Y, self.loss)
+            accuracy_train = self.compute_accuracy(A_train, Y)
+            self.losses_train.append(loss_train)
+            self.accuracies_train.append(accuracy_train)
+
             self.validate_training(X_val, Y_val, epoch)
-            
-            if epoch % 1000 == 0 or epoch == self.epochs - 1:
-                self.print_predictions_comparison(A, Y, num_samples=30)
+
+            if epoch % 200 == 0 or epoch == self.epochs - 1:
+                self.print_predictions_comparison(A_train, Y, num_samples=30)
 
 
     def validate_training(self, X_val, Y_val, epoch) -> None:
-        """  """
+        """ Use model weights and bias to validate the training """
         A_val, _ = self.forward_propagation(self.parameters, X_val)
         val_loss = Cost.compute_loss(A_val, Y_val, self.loss)
         val_accuracy = self.compute_accuracy(A_val, Y_val)
         
         self.losses_validation.append(val_loss)
         self.accuracies_validation.append(val_accuracy)
-        
-        if epoch % 1000 == 0 or epoch == self.epochs - 1:
+
+        if epoch % 200 == 0 or epoch == self.epochs - 1:
             print(f"Validation Loss: {val_loss:.4f} | Validation Accuracy: {val_accuracy*100:.2f}%")
         
 
     def create_logs(self) -> None:
-        # Plotting the loss
+        """Create Loss and Accuracy graphs."""
+        def smooth_curve(points, factor=0.97):
+            """Applies exponential smoothing to a list of points."""
+            smoothed_points = []
+            for point in points:
+                if smoothed_points:
+                    previous = smoothed_points[-1]
+                    smoothed_points.append(previous * factor + point * (1 - factor))
+                else:
+                    smoothed_points.append(point)
+            return smoothed_points
+
+        smoothed_losses_train = smooth_curve(self.losses_train)
+        smoothed_losses_validation = smooth_curve(self.losses_validation)
+        smoothed_accuracies_train = smooth_curve(self.accuracies_train)
+        smoothed_accuracies_validation = smooth_curve(self.accuracies_validation)
+        
+        # Loss
         plt.figure(figsize=(14, 6))
 
         plt.subplot(1, 2, 1)
-        plt.plot(self.losses_train, label='Training Loss', color='blue')
-        plt.plot(self.losses_validation, label='Validation Loss', color='orange')
+        plt.plot(smoothed_losses_train, label='Training Loss', color='blue')
+        plt.plot(smoothed_losses_validation, label='Validation Loss', color='orange')
         plt.title('Loss Over Epochs')
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
         plt.grid(True)
 
-        # Plotting the accuracy
+        # Accuracy
         plt.subplot(1, 2, 2)
-        plt.plot(self.accuracies_train, label='Training Accuracy', color='blue')
-        plt.plot(self.accuracies_validation, label='Validation Accuracy', color='orange')
+        plt.plot(smoothed_accuracies_train, label='Training Accuracy', color='blue')
+        plt.plot(smoothed_accuracies_validation, label='Validation Accuracy', color='orange')
         plt.title('Accuracy Over Epochs')
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
@@ -126,7 +170,7 @@ class Training:
         plt.grid(True)
 
         plt.tight_layout()
-        plt.savefig('training_logs.png')  # Save the plot as an image file
+        plt.savefig(os.path.join(LOGS_FOLDER, LOSS_LOGS_FILE))
         plt.show()
 
 
@@ -196,17 +240,13 @@ class Training:
         """
         Affiche un échantillon des prédictions vs les vraies valeurs
         """
-        # Convertir les one-hot en labels de classe
         Y_pred_labels = np.argmax(A, axis=1)
         Y_true_labels = np.argmax(Y, axis=1)
 
-        # Calculer l'accuracy globale
         accuracy = np.mean(Y_pred_labels == Y_true_labels)
 
-        # Sélectionner un sous-échantillon
         indices = np.random.choice(len(Y), num_samples, replace=False)
 
-        # Créer un DataFrame pour l'affichage
         results = pd.DataFrame({
             'Sample Index': indices,
             'Predicted Class': Y_pred_labels[indices],
@@ -214,7 +254,6 @@ class Training:
             'Correct': Y_pred_labels[indices] == Y_true_labels[indices]
         })
 
-        # Ajouter les probabilités de chaque classe
         prob_df = pd.DataFrame(A[indices], columns=[f'Class {i}_prob' for i in range(A.shape[1])])
         results = pd.concat([results, prob_df], axis=1)
 

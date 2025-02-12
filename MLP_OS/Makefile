@@ -12,7 +12,7 @@ launch_data_preprocessing:
 
 launch_training:
 	@echo "\n$(YELLOW)Starting model training...$(NC)"
-	@python3 srcs/training/train.py --layer 24 24 12 --epochs 30000 --loss binaryCrossentropy --batch_size 8 --learning_rate 0.0314
+	@python3 srcs/training/train.py --layer 24 24 12 --epochs 2000 --loss binaryCrossentropy --batch_size 8 --learning_rate 0.0314
 	@echo "$(GREEN)Model training has ended successfully!$(NC)\n"
 
 launch_prediction:
