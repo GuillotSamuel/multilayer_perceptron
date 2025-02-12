@@ -14,7 +14,7 @@ MODEL_PATH = "model"
 MODEL_FILE = "model.npz"
 
 # Data division parameters
-TRAIN_SIZE = 0.8
+TRAIN_SIZE = 0.80
 RANDOM_SEED = 42
 
 # Training parameters
