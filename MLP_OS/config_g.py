@@ -12,6 +12,8 @@ LOGS_FOLDER = "logs"
 LOSS_LOGS_FILE = "training_logs.png"
 MODEL_PATH = "model"
 MODEL_FILE = "model"
+PREDICTION_PATH = "prediction"
+PREDICTION_FILE = "prediction.csv"
 
 # Data division parameters
 TRAIN_SIZE = 0.80

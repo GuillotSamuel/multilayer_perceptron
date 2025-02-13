@@ -1,6 +1,7 @@
+import os
+import sys
 import numpy as np
 import pandas as pd
-
 
 class Data_preprocessor:
     
@@ -24,14 +25,15 @@ class Data_preprocessor:
 
 
     @staticmethod
-    def normalize_data(X, method="minmax"):
+    def normalize_data(X, X_min, X_max, X_mean, X_std, method="minmax"):
         """
         Normalize input data using different methods
         """
         if method == "minmax":
-            return (X - X.min()) / (X.max() - X.min())
+            return (X - X_min) / (X_max - X_min)
         elif method == "zscore":
-            return (X - X.mean()) / X.std()
+            return (X - X_mean) / X_std
         elif method == "l2":
             return X / np.sqrt(np.sum(X**2, axis=0))
-        return X
+        else:
+            raise ValueError(f"Normalization method not supported : {method}")

@@ -61,7 +61,11 @@ class Training:
             'activation': self.activation,
             'weight_initializer': self.weight_initializer,
             'num_inputs': self.num_inputs,
-            'num_outputs': self.num_outputs
+            'num_outputs': self.num_outputs,
+            'normalization_mean': self.training_data.mean(),
+            'normalization_std': self.training_data.std(),
+            'normalization_min': self.training_data.min(),
+            'normalization_max': self.training_data.max()
         }        
         Utils.save_model(MODEL_PATH, MODEL_FILE, self.parameters, self.model_config)
 
@@ -78,9 +82,15 @@ class Training:
 
     def train(self) -> None:
         """  """
-        X = Data_preprocessor.normalize_data(self.training_data)
+        X = Data_preprocessor.normalize_data(self.training_data,
+                                             self.training_data.min(), self.training_data.max(),
+                                             self.training_data.mean(), self.training_data.std(),
+                                             method='minmax')
         Y = Data_preprocessor.one_hot_encode(self.training_results)
-        X_val = Data_preprocessor.normalize_data(self.validation_data)
+        X_val = Data_preprocessor.normalize_data(self.validation_data,
+                                                 self.training_data.min(), self.training_data.max(),
+                                                 self.training_data.mean(), self.training_data.std(),
+                                                 method='minmax')
         Y_val = Data_preprocessor.one_hot_encode(self.validation_results)
         Initialization.initialize_weights(self.parameters, self.layers, self.weight_initializer)
         
