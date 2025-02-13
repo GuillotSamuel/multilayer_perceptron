@@ -25,7 +25,7 @@ class Predicting:
                 
         self.detailed_results = self.predict_and_explain(self.new_data, num_samples=10)
 
-        print("\n\nPrediction Results:")
+        print("Prediction Results:")
         print(self.detailed_results)
 
 
@@ -71,11 +71,13 @@ class Predicting:
 
         results['Predicted_Class'] = predictions
         results['Confidence'] = np.max(probabilities, axis=1)
+        
+        results['Diagnostic'] = results['Predicted_Class'].map({
+            0: 'B',
+            1: 'M'
+        })
 
-        if num_samples is not None:
-            results = results.sample(n=min(num_samples, len(results)))
-
-        return results.sort_values('Confidence', ascending=False)
+        return results
 
 
 if __name__ == "__main__":
