@@ -55,3 +55,9 @@ make tests
 4. Prediction making
 
 5. Displaying the results
+
+### Bonus
+
+1. Early stopping
+
+2. 
