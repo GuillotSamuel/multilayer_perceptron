@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from config_g import RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LOGS_FOLDER, LOSS_LOGS_FILE, MODEL_PATH, MODEL_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE
+from config_g import RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LOGS_FOLDER, LOSS_LOGS_FILE, MODEL_PATH, MODEL_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE, EARLY_STOPPING_LIMIT
 
 from srcs.training.activation import Activation
 from srcs.training.cost import Cost
@@ -120,13 +120,14 @@ class Training:
             self.losses_train.append(loss_train)
             self.accuracies_train.append(accuracy_train)
 
-            self.validate_training(X_val, Y_val, epoch)
+            if self.validate_training(X_val, Y_val, epoch) == True:
+                break
 
             if epoch % 200 == 0 or epoch == self.epochs - 1:
                 self.print_predictions_comparison(A_train, Y, num_samples=30)
 
 
-    def validate_training(self, X_val, Y_val, epoch) -> None:
+    def validate_training(self, X_val, Y_val, epoch) -> bool:
         """ Use model weights and bias to validate the training """
         A_val, _ = self.forward_propagation(self.parameters, X_val)
         val_loss = Cost.compute_loss(A_val, Y_val, self.loss)
@@ -134,10 +135,31 @@ class Training:
         
         self.losses_validation.append(val_loss)
         self.accuracies_validation.append(val_accuracy)
+        
+        if self.early_stopping(epoch) == True:
+            return True
 
         if epoch % 200 == 0 or epoch == self.epochs - 1:
             print(f"Validation Loss: {val_loss:.4f} | Validation Accuracy: {val_accuracy*100:.2f}%")
+            
+        return False
         
+
+    def early_stopping(self, epoch) -> bool:
+        """ Check if the model should stop training early """
+        if EARLY_STOPPING_LIMIT == 0:
+            return False
+        if epoch > EARLY_STOPPING_LIMIT:
+            last_losses = self.losses_validation[-EARLY_STOPPING_LIMIT:]
+            current_loss = last_losses[-1]
+            previous_losses = last_losses[:-1]
+            
+            if all(current_loss > prev_loss for prev_loss in previous_losses):
+                print(f"\nEarly stopping triggered at epoch {epoch}")
+                return True
+        
+        return False
+
 
     def create_logs(self) -> None:
         """Create Loss and Accuracy graphs."""
