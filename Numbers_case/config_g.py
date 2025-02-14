@@ -29,3 +29,14 @@ LEARNING_RATE = 0.1
 BATCH_SIZE = 50
 EARLY_STOPPING_LIMIT = 0
 NORM_METHOD = 'pixelNorm'
+
+# Optimizer Parameters
+ADAM = {
+    'learning_rate': LEARNING_RATE,
+    'beta_1': 0.9,  # Momentum term, usually around 0.9
+    'beta_2': 0.999,  # Squared gradient term, usually 0.999
+    'epsilon': 1e-07,  # Small constant to avoid division by zero
+}
+
+# Regularization Parameters
+DROPOUT = 0.2
