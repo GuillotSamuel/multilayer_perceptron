@@ -36,9 +36,6 @@ class Initialization:
 
 
     # def parse_config_file(self) -> argparse.Namespace:
-        
-
-    # def check_arguments(self) -> None:
 
 
     @staticmethod

@@ -1,4 +1,4 @@
-# config.py
+# config.py for the Wisconsin Diagnostic Breast Cancer (WDBC) case
 
 # Data files configuration
 RAW_DATA_PATH = "data/raw"

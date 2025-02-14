@@ -16,6 +16,8 @@ git clone https://github.com/GuillotSamuel/multilayer_perceptron
 make configurations
 ```
 
+3. For Number recognition case, download the numbers images database at the following link : https://www.kaggle.com/datasets/pintowar/numerical-images
+
 ## Usage
 
 Run the project using:

@@ -1,7 +1,3 @@
-# Data
-Numbers_case/data/raw/numbers/*
-Numbers_case/data/processed/*
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
