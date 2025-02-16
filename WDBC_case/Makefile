@@ -3,7 +3,7 @@ GREEN = \033[1;32m
 RED = \033[1;31m
 NC = \033[0m
 
-# WDBC
+# WDBC case
 
 all: launch_data_preprocessing launch_training launch_prediction
 

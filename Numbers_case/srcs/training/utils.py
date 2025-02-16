@@ -7,6 +7,7 @@ class Utils:
     
     @staticmethod
     def load_file(file_path: str) -> pd.DataFrame:
+        """ Load a file from the specified path. """
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"The file '{file_path}' does not exist.")
 

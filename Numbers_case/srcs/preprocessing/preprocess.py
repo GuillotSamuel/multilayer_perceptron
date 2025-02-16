@@ -6,7 +6,7 @@ from PIL import Image
 from dataclasses import dataclass, field
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from config_g import RAW_DATA_PATH, RAW_DATA_FILE, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, TRAIN_SIZE, RANDOM_SEED, RAW_DATA_IMAGES_PATH
+from config_g import RAW_DATA_PATH, RAW_DATA_FILE, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, TRAIN_SIZE, RANDOM_SEED
 
 
 @dataclass
@@ -18,6 +18,7 @@ class DataManager:
     validation_results: pd.DataFrame = field(init=False)
     
     def __post_init__(self):
+        """ Launch the data preprocessing """
         print("Loading data...")
         self.load_data()
         print("Data loaded.")
@@ -31,11 +32,6 @@ class DataManager:
     def load_data(self) -> None:
         """ 
         Load CSV and PNG files into a DataFrame
-
-        Args:
-            None
-        Returns:
-            None
         """
         data = []
         try:
@@ -80,12 +76,7 @@ class DataManager:
 
     def clean_data(self) -> None:
         """
-        DOES NOTHING FOR THE MOMENT BEING
-
-        Args:
-            None
-        Returns:
-            None
+        DOES NOTHING FOR THE MOMENT BEING / Data is already cleaned
         """
         pass # TEST
 
@@ -115,11 +106,6 @@ class DataManager:
         """
         Save the two new datasets in two csv files.
         Location -> data/processed
-        
-        Args:
-            None
-        Returns:
-            None
         """
         os.makedirs(PROCESSED_DATA_PATH, exist_ok=True)
 

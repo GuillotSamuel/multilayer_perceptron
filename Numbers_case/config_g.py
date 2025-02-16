@@ -1,4 +1,4 @@
-# config.py for the Wisconsin Diagnostic Breast Cancer (WDBC) case
+# config.py for the Number recognition case
 
 # Data files configuration
 RAW_DATA_PATH = "data/raw"
@@ -27,8 +27,11 @@ EPOCHS = 84 # Default number of epochs
 LOSS = 'binaryCrossentropy'# Default loss function
 LEARNING_RATE = 0.1 # Default learning rate
 BATCH_SIZE = 50 # Default batch size
-EARLY_STOPPING_LIMIT = 0 # Default early stopping limit
 NORM_METHOD = 'pixelNorm' # Default normalization method
+
+# Early stopping parameters
+EARLY_STOPPING_PATIENCE = 3 # Default early stopping limit
+EARLY_STOPPING_MIN_DELTA = 1e-6 # Default early stopping min delta
 
 # Optimizer Parameters
 ADAM = {

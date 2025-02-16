@@ -1,32 +1,31 @@
 import numpy as np
 
-
 class Activation:
     
-    @staticmethod
     def activation_g(Z, activation_type, derivative=False):
+        """ Selects the activation function based on the input string """
         if activation_type == "sigmoid":
-            A = Activation.sigmoid(Z, derivative)
+            A = Activation.sigmoid(Z, derivative)  # Commonly used for binary classification, smooth activation
         elif activation_type == "tanh":
-            A = Activation.tanh(Z, derivative)
+            A = Activation.tanh(Z, derivative)  # Similar to sigmoid but centered around zero, avoids bias shift
         elif activation_type == "relu":
-            A = Activation.relu(Z, derivative)
+            A = Activation.relu(Z, derivative)  # Most popular activation, solves vanishing gradient for positive values
         elif activation_type == "leakyRelu":
-            A = Activation.leaky_relu(Z, derivative)
+            A = Activation.leaky_relu(Z, derivative)  # Variation of ReLU, allows small gradients for negative values
         elif activation_type == "elu":
-            A = Activation.elu(Z, derivative)
+            A = Activation.elu(Z, derivative)  # Similar to Leaky ReLU but smoother transition for negative values
         elif activation_type == "softmax":
-            A = Activation.softmax(Z)
+            A = Activation.softmax(Z)  # Used in multi-class classification, converts logits to probabilities
         elif activation_type == "swish":
-            A = Activation.swish(Z, derivative)
+            A = Activation.swish(Z, derivative)  # Self-gated activation, improves performance in deep networks
         elif activation_type == "gelu":
-            A = Activation.gelu(Z, derivative)
+            A = Activation.gelu(Z, derivative)  # Smooth approximation of ReLU, used in transformer models
         elif activation_type == "selu":
-            A = Activation.selu(Z, derivative)
+            A = Activation.selu(Z, derivative)  # Self-normalizing activation, helps with stable training
         elif activation_type == "mish":
-            A = Activation.mish(Z, derivative)
+            A = Activation.mish(Z, derivative)  # Smooth and non-monotonic, alternative to Swish for better training
         else:
-            raise ValueError("Activation function not supported")
+            raise ValueError("Activation function not supported")  # Handles invalid activation function input
         return A
 
 

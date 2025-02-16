@@ -3,7 +3,7 @@ GREEN = \033[1;32m
 RED = \033[1;31m
 NC = \033[0m
 
-# WDBC
+# Number recognition case
 
 all: launch_data_preprocessing launch_training launch_prediction
 
@@ -14,7 +14,7 @@ launch_data_preprocessing:
 
 launch_training:
 	@echo "\n$(YELLOW)Starting model training...$(NC)"
-	@python3 srcs/training/train.py --layer 256 128 64 --epochs 50 --loss categoricalCrossentropy --batch_size 32 --learning_rate 0.0314
+	@python3 srcs/training/train.py --layer 256 128 64 --epochs 100 --loss categoricalCrossentropy --batch_size 32 --learning_rate 0.0314
 	@echo "$(GREEN)Model training has ended successfully!$(NC)\n"
 
 launch_prediction:

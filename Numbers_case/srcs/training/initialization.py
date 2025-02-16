@@ -5,13 +5,14 @@ import pandas as pd
 import numpy as np
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from config_g import RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE
+from config_g import LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE
 
 
 class Initialization:
 
     def parse_arguments(training_data, validation_data,
                         training_results, validation_results) -> argparse.Namespace:
+        """ Parse arguments from command line """
         parser = argparse.ArgumentParser(description="Training Manager Configuration")
 
         parser.add_argument("--layer", type=int, nargs="+", default=LAYER, help="Size of each layer.")
@@ -64,6 +65,7 @@ class Initialization:
 
 
 def count_outputs(training_results, validation_results) -> int:
+    """ Count number of outputs in the dataset """
     all_results = pd.concat([training_results, validation_results])
 
     num_outputs = all_results['label'].nunique()
@@ -72,6 +74,7 @@ def count_outputs(training_results, validation_results) -> int:
 
 
 def count_inputs(training_data, validation_data) -> int:
+    """ Count number of inputs in the dataset """
     num_inputs = training_data.shape[1]
 
     if validation_data.shape[1] != num_inputs:

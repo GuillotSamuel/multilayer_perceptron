@@ -62,4 +62,14 @@ make tests
 
 1. Early stopping
 
-2. 
+2. Number recognition
+
+3. Dropout
+
+4. Loss methods : categorical crossentropy + 1 other method
+
+5. Weights initializations : heUniform + 4 other methods
+
+6. Activation methods : Softmax + Sigmoid + 8 other methods
+
+7. Adam optimization

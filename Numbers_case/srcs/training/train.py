@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from config_g import RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LOGS_FOLDER, LOSS_LOGS_FILE, MODEL_PATH, MODEL_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE, EARLY_STOPPING_LIMIT, NORM_METHOD, DROPOUT_RATE
+from config_g import PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LOGS_FOLDER, LOSS_LOGS_FILE, MODEL_PATH, MODEL_FILE, MODEL_PATH, MODEL_FILE, EARLY_STOPPING_PATIENCE, EARLY_STOPPING_MIN_DELTA, NORM_METHOD, DROPOUT_RATE, ADAM
 
 from srcs.training.activation import Activation
 from srcs.training.cost import Cost
@@ -111,7 +111,6 @@ class Training:
         Y = Y.to_numpy() if hasattr(Y, 'to_numpy') else np.array(Y)
       
         for epoch in range(self.epochs):
-            print(f"Starting epoch {epoch}.")
             permutation = np.random.permutation(X_len)
             X_shuffled = X[permutation]
             Y_shuffled = Y[permutation]
@@ -148,7 +147,7 @@ class Training:
         self.losses_validation.append(val_loss)
         self.accuracies_validation.append(val_accuracy)
         
-        if self.early_stopping(epoch) == True:
+        if self.early_stopping(epoch, patience=EARLY_STOPPING_PATIENCE, min_delta=EARLY_STOPPING_MIN_DELTA) == True:
             return True
 
         if epoch % 1 == 0 or epoch == self.epochs - 1:
@@ -157,24 +156,36 @@ class Training:
         return False
         
 
-    def early_stopping(self, epoch) -> bool:
-        """ Check if the model should stop training early """
-        if EARLY_STOPPING_LIMIT == 0:
-            return False
-        if epoch > EARLY_STOPPING_LIMIT:
-            last_losses = self.losses_validation[-EARLY_STOPPING_LIMIT:]
-            current_loss = last_losses[-1]
-            previous_losses = last_losses[:-1]
-            
-            if all(current_loss > prev_loss for prev_loss in previous_losses):
-                print(f"\nEarly stopping triggered at epoch {epoch}")
-                return True
+    def early_stopping(self, epoch, patience=5, min_delta=1e-4) -> bool:
+        """
+        Check if the model should stop training early using more robust criteria
         
+        Args:
+            epoch (int): Current training epoch
+            patience (int): Number of epochs to wait before stopping
+            min_delta (float): Minimum change in loss to be considered as an improvement
+        """
+        if EARLY_STOPPING_PATIENCE == 0:
+            return False
+            
+        if epoch > patience:
+            recent_losses = self.losses_validation[-(patience + 1):]
+            best_loss = min(recent_losses[:-1])
+            current_loss = recent_losses[-1]
+            
+            if current_loss > best_loss + min_delta:
+                if all(recent_losses[i] < recent_losses[i+1] for i in range(len(recent_losses)-1)):
+                    print(f"\nEarly stopping triggered at epoch {epoch}")
+                    print(f"Best validation loss: {best_loss:.4f}")
+                    print(f"Current validation loss: {current_loss:.4f}")
+                    print(f"No improvement over the last {patience} epochs")
+                    return True
+                    
         return False
 
 
     def create_logs(self) -> None:
-        """Create Loss and Accuracy graphs."""
+        """ Create Loss and Accuracy graphs. """
         def smooth_curve(points, factor=0.97):
             """Applies exponential smoothing to a list of points."""
             smoothed_points = []
@@ -221,7 +232,7 @@ class Training:
     """ ---------- TRAINING FUNCTIONS ---------- """
 
     def forward_propagation(self, parameters, X, is_training=True):
-        """ Forward propagation of the model with dropout option"""
+        """ Forward propagation of the model with dropout option """
         cache = {'A0': X.copy()}
         A = X
 
