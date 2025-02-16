@@ -31,7 +31,9 @@ make
 
 ### Key notions 🧠
 
-1. **Multilayer perceptron** - A type of artificial neural network with multiple layers between input and output, used for complex pattern recognition.
+1. **Multilayer perceptron** - A deep learning model composed of multiple layers of neurons, enabling the network to learn complex patterns and make accurate predictions.
+
+![Screenshot of a simple multilayer perceptron with a single output](/documentation/mlp.png)
 
 2. **Perceptron** - The simplest type of artificial neural network, consisting of a single layer that performs linear classification.
 
