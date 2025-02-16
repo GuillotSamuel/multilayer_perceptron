@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from config_g import RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LOGS_FOLDER, LOSS_LOGS_FILE, MODEL_PATH, MODEL_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE, EARLY_STOPPING_LIMIT, NORM_METHOD
+from config_g import RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LOGS_FOLDER, LOSS_LOGS_FILE, MODEL_PATH, MODEL_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE, EARLY_STOPPING_LIMIT, NORM_METHOD, DROPOUT_RATE
 
 from srcs.training.activation import Activation
 from srcs.training.cost import Cost
@@ -16,7 +16,7 @@ from srcs.training.utils import Utils
 class Training:
 
     def __init__(self) -> None:
-        """  """
+        """ Training Manager Constructor """
         
         # MLP Parameters
         self.training_data = Utils.load_file(f"{PROCESSED_DATA_PATH}/{TRAINING_DATA_FILE}")
@@ -87,7 +87,7 @@ class Training:
 
 
     def train(self) -> None:
-        """  """
+        """ Training the model """
         X = Data_preprocessor.normalize_data(self.training_data,
                                              X_min=0, X_max=0,
                                              X_mean=0, X_std=0,
@@ -120,7 +120,7 @@ class Training:
                 X_batch = X_shuffled[i:i+self.batch_size]
                 Y_batch = Y_shuffled[i:i+self.batch_size]
             
-                A_batch, cache_batch = self.forward_propagation(self.parameters, X_batch)
+                A_batch, cache_batch = self.forward_propagation(self.parameters, X_batch, is_training=True)
 
                 gradients = self.back_propagation(X_batch, Y_batch, self.parameters, cache_batch)
 
@@ -141,7 +141,7 @@ class Training:
 
     def validate_training(self, X_val, Y_val, epoch) -> bool:
         """ Use model weights and bias to validate the training """
-        A_val, _ = self.forward_propagation(self.parameters, X_val)
+        A_val, _ = self.forward_propagation(self.parameters, X_val, is_training=False)
         val_loss = Cost.compute_loss(A_val, Y_val, self.loss)
         val_accuracy = self.compute_accuracy(A_val, Y_val)
         
@@ -220,8 +220,8 @@ class Training:
 
     """ ---------- TRAINING FUNCTIONS ---------- """
 
-    def forward_propagation(self, parameters, X):
-        """  """
+    def forward_propagation(self, parameters, X, is_training=True):
+        """ Forward propagation of the model with dropout option"""
         cache = {'A0': X.copy()}
         A = X
 
@@ -235,18 +235,28 @@ class Training:
 
             A = Activation.activation_g(Z, self.activation[i], derivative = False)
 
+            # Dropout
+            if is_training and (i < len(self.layers) - 2):
+                keep_prob = 1 - DROPOUT_RATE
+                mask = (np.random.rand(*A.shape) < keep_prob).astype(float)
+                mask /= keep_prob
+                A *= mask
+                cache[f"mask_{layer_idx}"] = mask
+
             cache[f"A{layer_idx}"] = A.copy()
 
         return A, cache
     
 
     def compute_accuracy(self, A, Y):
+        """ Compute the accuracy of the model """
         Y_pred_labels = np.argmax(A, axis=1)
         Y_true_labels = np.argmax(Y, axis=1)
         return np.mean(Y_pred_labels == Y_true_labels)
 
 
     def back_propagation(self, X, Y, parameters, cache):
+        """ Backward propagation of the model """
         gradients = {}
         m = X.shape[0]
         num_layers = len(self.layers) - 1
@@ -261,6 +271,10 @@ class Training:
         for l in reversed(range(1, num_layers)):
             W_next = parameters[f'W{l+1}']
             dA = np.dot(dZ, W_next)
+            
+            mask_key = f"mask_{l}"
+            if mask_key in cache:
+                dA *= cache[mask_key]
 
             Z_current = cache[f'Z{l}']
             activation_type = self.activation[l-1]
@@ -274,6 +288,7 @@ class Training:
 
 
     def update_weights(self, parameters, gradients):
+        """ Update the weights and biases of the model """
         L = len(self.layers) - 1
         for l in range(1, L+1):
             parameters[f"W{l}"] -= self.learning_rate * gradients[f"dW{l}"]
@@ -281,9 +296,7 @@ class Training:
 
 
     def print_predictions_comparison(self, A, Y, num_samples=10): # TEST
-        """
-        Affiche un échantillon des prédictions vs les vraies valeurs
-        """
+        """ Display a comparison of predicted values sample vs actual values. """
         # Y_pred_labels = np.argmax(A, axis=1)
         # Y_true_labels = np.argmax(Y, axis=1)
 

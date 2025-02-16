@@ -17,18 +17,18 @@ PREDICTION_PATH = "prediction"
 PREDICTION_FILE = "prediction.csv"
 
 # Data division parameters
-TRAIN_SIZE = 0.80
-RANDOM_SEED = 42
+TRAIN_SIZE = 0.80 # Default training size
+RANDOM_SEED = 42 # Random seed for random train-test split
 
 # Training parameters
 # NETWORK
-LAYER = [24, 24, 12]
-EPOCHS = 84
-LOSS = 'binaryCrossentropy'
-LEARNING_RATE = 0.1
-BATCH_SIZE = 50
-EARLY_STOPPING_LIMIT = 0
-NORM_METHOD = 'pixelNorm'
+LAYER = [24, 24, 12] # Default number of neurones in each hidden layer
+EPOCHS = 84 # Default number of epochs
+LOSS = 'binaryCrossentropy'# Default loss function
+LEARNING_RATE = 0.1 # Default learning rate
+BATCH_SIZE = 50 # Default batch size
+EARLY_STOPPING_LIMIT = 0 # Default early stopping limit
+NORM_METHOD = 'pixelNorm' # Default normalization method
 
 # Optimizer Parameters
 ADAM = {
@@ -39,4 +39,4 @@ ADAM = {
 }
 
 # Regularization Parameters
-DROPOUT = 0.2
+DROPOUT_RATE = 0.2 # Fraction of the neurones units to drop randomly on each hidden layer

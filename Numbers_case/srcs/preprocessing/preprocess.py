@@ -18,6 +18,7 @@ class DataManager:
     validation_results: pd.DataFrame = field(init=False)
     
     def __post_init__(self):
+        print("Loading data...")
         self.load_data()
         print("Data loaded.")
         self.clean_data()
