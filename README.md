@@ -62,7 +62,10 @@ make tests
 
 1. Early stopping
 
-2. Number recognition
+2. Number recognition :
+    - import csv files, transform then into pixels array
+    - using categorical crossentropy + softmax + relu
+    - predict number drawings value
 
 3. Dropout
 
@@ -72,4 +75,3 @@ make tests
 
 6. Activation methods : Softmax + Sigmoid + 8 other methods
 
-7. Adam optimization

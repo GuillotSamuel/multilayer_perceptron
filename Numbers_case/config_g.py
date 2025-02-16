@@ -30,16 +30,8 @@ BATCH_SIZE = 50 # Default batch size
 NORM_METHOD = 'pixelNorm' # Default normalization method
 
 # Early stopping parameters
-EARLY_STOPPING_PATIENCE = 3 # Default early stopping limit
-EARLY_STOPPING_MIN_DELTA = 1e-6 # Default early stopping min delta
-
-# Optimizer Parameters
-ADAM = {
-    'learning_rate': LEARNING_RATE,
-    'beta_1': 0.9,  # Momentum term, usually around 0.9
-    'beta_2': 0.999,  # Squared gradient term, usually 0.999
-    'epsilon': 1e-07,  # Small constant to avoid division by zero
-}
+EARLY_STOPPING_PATIENCE = 5 # Default early stopping limit
+EARLY_STOPPING_MIN_DELTA = 1e-5 # Default early stopping min delta
 
 # Regularization Parameters
 DROPOUT_RATE = 0.2 # Fraction of the neurones units to drop randomly on each hidden layer

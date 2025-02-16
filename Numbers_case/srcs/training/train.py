@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from config_g import PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LOGS_FOLDER, LOSS_LOGS_FILE, MODEL_PATH, MODEL_FILE, MODEL_PATH, MODEL_FILE, EARLY_STOPPING_PATIENCE, EARLY_STOPPING_MIN_DELTA, NORM_METHOD, DROPOUT_RATE, ADAM
+from config_g import PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LOGS_FOLDER, LOSS_LOGS_FILE, MODEL_PATH, MODEL_FILE, MODEL_PATH, MODEL_FILE, EARLY_STOPPING_PATIENCE, EARLY_STOPPING_MIN_DELTA, NORM_METHOD, DROPOUT_RATE
 
 from srcs.training.activation import Activation
 from srcs.training.cost import Cost
@@ -301,6 +301,7 @@ class Training:
     def update_weights(self, parameters, gradients):
         """ Update the weights and biases of the model """
         L = len(self.layers) - 1
+        
         for l in range(1, L+1):
             parameters[f"W{l}"] -= self.learning_rate * gradients[f"dW{l}"]
             parameters[f"b{l}"] -= self.learning_rate * gradients[f"db{l}"]
