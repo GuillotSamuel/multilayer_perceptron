@@ -1,35 +1,35 @@
-# multilayer_perceptron
+# Multilayer perceptron
 
-## Description
+## Description 📌
 
-This project implements a multilayer perceptron (MLP) for various classification tasks, including digit recognition and biomedical data analysis.
+This project is developed as part of the 42 school curriculum and implements a multilayer perceptron (MLP) for various classification tasks, including digit recognition and biomedical data analysis.
 
-## Installation
+## Installation ⚙️
 
-1. Clone the repository
+1. **Clone the repository**
 ```bash
 git clone https://github.com/GuillotSamuel/multilayer_perceptron
 ```
 
-2. Install dependencies
+2. **Install dependencies**
 ```bash
 make configurations
 ```
 
-3. Download the database for number recognition
+3. **Download the database for number recognition**
 
 For the number recognition case, download the digit image dataset from the following link: [Numérical Images Dataset - Kaggle](https://www.kaggle.com/datasets/pintowar/numerical-images)
 
-## Usage
+## Usage 🚀
 
 Run the projects using in their root folders (Numbers_case and WDBC_case):
 ```bash
 make
 ```
 
-## Project presentation
+## Project presentation 📊
 
-### Key notions
+### Key notions 🧠
 
 1. **Multilayer perceptron** - A type of artificial neural network with multiple layers between input and output, used for complex pattern recognition.
 
@@ -41,7 +41,7 @@ make
 
 5. **Gradient descents** - An optimization algorithm that minimizes the error function by updating weights in the direction of the steepest descent.
 
-### Project structure
+### Project structure 📂
 
 1. **Data processing** - Loading a csv (WDBC case) or multiple png (Number recognition case).
 
@@ -49,7 +49,7 @@ make
 
 4. **Prediction making** - In both cases, you can put examples in prediction folder.
 
-### Bonus
+### Bonus Features 🎁
 
 1. **Early Stopping** - Prevents overfitting by stopping training when validation loss stops improving.
 
