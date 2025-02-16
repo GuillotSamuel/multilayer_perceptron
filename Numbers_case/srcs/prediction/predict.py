@@ -2,47 +2,71 @@ import os
 import sys
 import pandas as pd
 import numpy as np
+from PIL import Image
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from config_g import MODEL_PATH, MODEL_FILE, MODEL_PATH, MODEL_FILE, PREDICTION_PATH, PREDICTION_FILE
+from config_g import MODEL_PATH, MODEL_FILE, MODEL_PATH, MODEL_FILE, PREDICTION_PATH
 from srcs.training.activation import Activation
-from srcs.training.data_preprocessor import Data_preprocessor
 from srcs.training.utils import Utils
 
 class Predicting:
 
-    def __init__(self, new_data) -> None:
+    def __init__(self, image_dir) -> None:
         """Initialize Predicting class and launch predict function."""
         self.parameters, self.config = Utils.load_model(MODEL_PATH, MODEL_FILE)
         self.layers = self.config['layers']
         self.activation = self.config['activation']
-        self.normalization_mean = self.config['normalization_mean']
-        self.normalization_std = self.config['normalization_std']
+
         self.normalization_min = self.config['normalization_min']
         self.normalization_max = self.config['normalization_max']
-
-        self.new_data = new_data
+        
+        self.image_paths = [os.path.join(image_dir, f) 
+                          for f in os.listdir(image_dir) if f.endswith('.png')]
                 
-        self.detailed_results = self.predict_and_explain(self.new_data, num_samples=10)
-
-        print("Prediction Results:")
-        print(self.detailed_results)
-
-
-    def predict(self, X: pd.DataFrame) -> pd.DataFrame:
-        """Predict if a patient has a cancer."""
-        X_processed = Data_preprocessor.normalize_data(X,
-                                                       self.normalization_min, self.normalization_max,
-                                                       self.normalization_mean, self.normalization_std,
-                                                       method='minmax')      
-        probabilities, _ = self.forward_propagation(X_processed)
-        predictions = np.argmax(probabilities, axis=1)
-
-        return predictions, probabilities
+        self.predictions = self.process_and_predict()
+        
+        self.print_predictions()
 
 
+    def process_image(self, image_path):
+        """Process image for prediction (PNG to normalized pixels)."""
+        try:
+            img = Image.open(image_path).convert('L')
+            img = img.resize((28, 28))
+            
+            img_array = np.array(img).flatten().astype(np.float32)
+            
+            img_normalized = (img_array - self.normalization_min) / (self.normalization_max - self.normalization_min + 1e-8)
+
+            return img_normalized
+        except Exception as e:
+            raise ValueError(f"Error processing image: {e}")
+
+    
+    def process_and_predict(self):
+        """Process images and predict the class."""
+        predictions = []
+        for img_path in self.image_paths:
+            processed_img = self.process_image(img_path)
+            
+            if processed_img is not None:
+                processed_img_array = np.array(processed_img)
+                probabilities, _ = self.forward_propagation(processed_img_array.reshape(1, -1))
+                pred_class = np.argmax(probabilities)
+                confidence = np.max(probabilities)
+                
+                predictions.append({
+                    'File': os.path.basename(img_path),
+                    'Prediction': pred_class,
+                    'Trust': f"{confidence * 100:.2f}%",
+                    'Probability': probabilities
+                })
+                
+        return predictions
+    
+    
     def forward_propagation(self, X):
-        """Forward propagation to obtain the predictions."""
+        """Forward propagation for prediction."""
         cache = {'A0': X.copy()}
         A = X
 
@@ -52,38 +76,30 @@ class Predicting:
             b = self.parameters[f"b{layer_idx}"]
 
             Z = np.dot(A, W.T) + b.T
-            cache[f"Z{layer_idx}"] = Z
-
             A = Activation.activation_g(Z, self.activation[i], derivative=False)
             cache[f"A{layer_idx}"] = A.copy()
 
         return A, cache
-
-
-    def predict_and_explain(self, X, num_samples=None):
-        """Predict and explain the predictions."""
-        predictions, probabilities = self.predict(X)
-
-        results = pd.DataFrame()
-
-        for i in range(probabilities.shape[1]):
-            results[f'Probability_Class_{i}'] = probabilities[:, i]
-
-        results['Predicted_Class'] = predictions
-        results['Confidence'] = np.max(probabilities, axis=1)
-        
-        results['Diagnostic'] = results['Predicted_Class'].map({
-            0: 'B',
-            1: 'M'
-        })
-
-        return results
-
+    
+    
+    def print_predictions(self):
+        """Display the predictions."""
+        print("Predictions results:")
+        print("-" * 50)
+        for result in self.predictions:
+            print(f"Image: {result['File']}")
+            print(f"Prediction: {result['Prediction']}")
+            print(f"Trust: {result['Trust']}")
+            print("-" * 50)
+    
 
 if __name__ == "__main__":
-    prediction_file_path = os.path.join(PREDICTION_PATH, PREDICTION_FILE)
-    print(f"Loading data from: {prediction_file_path}")
-    if os.path.exists(prediction_file_path) and os.path.getsize(prediction_file_path) > 0:
-        Predicting(pd.read_csv(prediction_file_path))
+    if not os.path.exists(PREDICTION_PATH):
+        os.makedirs(PREDICTION_PATH)
+
+    print(f"Loading files from {PREDICTION_PATH}")
+    if os.path.exists(PREDICTION_PATH) and os.listdir(PREDICTION_PATH):
+        Predicting(PREDICTION_PATH)
     else:
-        raise FileNotFoundError(f"The file {prediction_file_path} is either missing or empty.")
+        raise FileNotFoundError(f"No files found in {PREDICTION_PATH}")
+        
