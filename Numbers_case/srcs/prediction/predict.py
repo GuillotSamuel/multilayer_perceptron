@@ -31,16 +31,17 @@ class Predicting:
     def process_image(self, image_path):
         """Process image for prediction (PNG to normalized pixels)."""
         try:
-            img = Image.open(image_path).convert('L')
-            img = img.resize((28, 28))
-            
-            img_array = np.array(img).flatten().astype(np.float32)
-            
+            with Image.open(image_path) as img:
+                img = img.convert('L')
+                img = img.resize((28, 28))
+                img_array = np.array(img).flatten().astype(np.float32)
+
             img_normalized = (img_array - self.normalization_min) / (self.normalization_max - self.normalization_min + 1e-8)
 
             return img_normalized
         except Exception as e:
             raise ValueError(f"Error processing image: {e}")
+
 
     
     def process_and_predict(self):

@@ -25,7 +25,7 @@ class Training:
         self.validation_results = Utils.load_file(f"{PROCESSED_DATA_PATH}/{VALIDATION_RESULTS_FILE}")
         print("Loading and validation files have been loaded.")
         
-        args = Initialization.parse_arguments(self.training_data, self.validation_data,
+        args = Initialization.parsing(self.training_data, self.validation_data,
                                               self.training_results, self.validation_results)
         print("Parsing is done.")
 

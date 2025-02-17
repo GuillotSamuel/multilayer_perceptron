@@ -1,6 +1,7 @@
 import os
 import sys
 import argparse
+import re
 import pandas as pd
 import numpy as np
 
@@ -9,6 +10,16 @@ from config_g import LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE
 
 
 class Initialization:
+    
+    def parsing(training_data, validation_data,
+                training_results, validation_results) -> argparse.Namespace:
+        """ Parse arguments from command line or configuration file """
+        if len(sys.argv) > 1 and sys.argv[1].endswith(".config"):
+            return Initialization.parse_config_file(sys.argv[1])
+        else:
+            return Initialization.parse_arguments(training_data, validation_data,
+                                                   training_results, validation_results)
+
 
     def parse_arguments(training_data, validation_data,
                         training_results, validation_results) -> argparse.Namespace:
@@ -36,7 +47,58 @@ class Initialization:
         return args
 
 
-    # def parse_config_file(self) -> argparse.Namespace:
+    def parse_config_file(config_path: str) -> argparse.Namespace:
+        """ Parse configuration file for model parameters """
+        layer_sizes = []
+        activations = []
+        weight_initializers = []
+        loss = LOSS
+        learning_rate = LEARNING_RATE
+        batch_size = BATCH_SIZE
+        epochs = EPOCHS
+
+        with open(config_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                
+                # Dense layers parsing
+                match = re.match(r".*DenseLayer\(([^)]+)\).*", line)
+                if match:
+                    params = match.group(1).split(",")
+                    size = int(params[0].strip()) if params[0].strip().isdigit() else None
+                    activation = None
+                    weight_initializer = None
+
+                    for param in params[1:]:
+                        param = param.strip()
+                        if "activation=" in param:
+                            activation = param.split("=")[1].strip().strip("'")
+                        if "weights_initializer=" in param:
+                            weight_initializer = param.split("=")[1].strip().strip("'")
+
+                    if size:
+                        layer_sizes.append(size)
+                    activations.append(activation or "relu")
+                    weight_initializers.append(weight_initializer or "he_uniform")
+
+                # Training parameters parsing
+                match_train = re.search(r"loss='([^']+)', learning_rate=([\d\.]+), batch_size=(\d+), epochs=(\d+)", line)
+                if match_train:
+                    loss = match_train.group(1)
+                    learning_rate = float(match_train.group(2))
+                    batch_size = int(match_train.group(3))
+                    epochs = int(match_train.group(4))
+
+        args = argparse.Namespace()
+        args.layer = layer_sizes
+        args.activation = activations
+        args.weight_initializer = weight_initializers
+        args.loss = loss
+        args.learning_rate = learning_rate
+        args.batch_size = batch_size
+        args.epochs = epochs
+
+        return args
 
 
     @staticmethod

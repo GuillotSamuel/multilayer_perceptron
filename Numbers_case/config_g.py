@@ -31,7 +31,7 @@ NORM_METHOD = 'pixelNorm' # Default normalization method
 
 # Early stopping parameters
 EARLY_STOPPING_PATIENCE = 5 # Default early stopping limit
-EARLY_STOPPING_MIN_DELTA = 1e-5 # Default early stopping min delta
+EARLY_STOPPING_MIN_DELTA = 1e-6 # Default early stopping min delta
 
 # Regularization Parameters
 DROPOUT_RATE = 0.2 # Fraction of the neurones units to drop randomly on each hidden layer

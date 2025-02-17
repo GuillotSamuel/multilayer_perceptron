@@ -35,6 +35,7 @@ make
 
 ![Screenshot of a simple multilayer perceptron with a single output](/documentation/mlp.png)
 
+
 2. **Perceptron** - The simplest type of artificial neural network, consisting of a single layer that performs linear classification.
 
 3. **Feedforward** - The process of passing input data through the network layers to generate predictions.
