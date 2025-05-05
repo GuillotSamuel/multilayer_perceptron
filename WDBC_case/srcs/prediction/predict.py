@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from config_g import MODEL_PATH, MODEL_FILE, MODEL_PATH, MODEL_FILE, PREDICTION_PATH, PREDICTION_FILE
+from config_g import MODEL_PATH, MODEL_FILE, PREDICTION_PATH, PREDICTION_FILE
 from srcs.training.activation import Activation
 from srcs.training.data_preprocessor import Data_preprocessor
 from srcs.training.utils import Utils
@@ -22,19 +22,36 @@ class Predicting:
         self.normalization_max = self.config['normalization_max']
 
         self.new_data = new_data
-                
+
+        self.has_labels = 'diagnosis' in self.new_data.columns
+        
+        if self.has_labels:
+            self.true_labels = self.new_data['diagnosis'].map({'B': 0, 'M': 1}).values
+        
         self.detailed_results = self.predict_and_explain(self.new_data, num_samples=10)
 
         print("Prediction Results:")
         print(self.detailed_results)
 
+        if self.has_labels:
+            bce_error = self.evaluate_binary_cross_entropy(self.detailed_results)
+            print(f"\nBinary Cross-Entropy Error: {bce_error:.6f}")
+
 
     def predict(self, X: pd.DataFrame) -> pd.DataFrame:
         """Predict if a patient has a cancer."""
-        X_processed = Data_preprocessor.normalize_data(X,
+        X_copy = X.copy()
+        
+        if 'diagnosis' in X_copy.columns:
+            X_features = X_copy.drop(columns=['diagnosis'])
+        else:
+            X_features = X_copy
+        
+        X_processed = Data_preprocessor.normalize_data(X_features,
                                                        self.normalization_min, self.normalization_max,
                                                        self.normalization_mean, self.normalization_std,
-                                                       method='minmax')      
+                                                       method='minmax')
+        
         probabilities, _ = self.forward_propagation(X_processed)
         predictions = np.argmax(probabilities, axis=1)
 
@@ -76,8 +93,31 @@ class Predicting:
             0: 'B',
             1: 'M'
         })
+        
+        if self.has_labels:
+            results['True_Class'] = self.true_labels
+            results['True_Diagnostic'] = X['diagnosis']
+            results['Correct'] = results['Predicted_Class'] == results['True_Class']
 
         return results
+
+    def evaluate_binary_cross_entropy(self, results):
+        """Calculate binary cross-entropy error."""
+        if 'True_Class' not in results.columns:
+            print("Warning: Cannot calculate binary cross-entropy without true labels")
+            return None
+        
+        y_true = results['True_Class'].values
+        p_pred = results['Probability_Class_1'].values
+        
+        epsilon = 1e-15
+        p_pred = np.clip(p_pred, epsilon, 1 - epsilon)
+        
+        bce_per_sample = -(y_true * np.log(p_pred) + (1 - y_true) * np.log(1 - p_pred))
+        
+        bce = np.mean(bce_per_sample)
+        
+        return bce
 
 
 if __name__ == "__main__":
