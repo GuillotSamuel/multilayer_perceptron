@@ -36,6 +36,10 @@ class Training:
         self.weight_initializer = args.weight_initializer
         self.num_inputs = args.num_inputs
         self.num_outputs = args.num_outputs
+
+        self.best_accuracy = 0
+        self.best_val_loss = float('inf')
+        self.best_parameters = None
         
         self.print_variables() # TEST
         
@@ -66,7 +70,11 @@ class Training:
             'normalization_std': self.training_data.std(),
             'normalization_min': self.training_data.min(),
             'normalization_max': self.training_data.max()
-        }        
+        }
+
+        if self.best_parameters is not None:
+            self.parameters = self.best_parameters
+
         Utils.save_model(MODEL_PATH, MODEL_FILE, self.parameters, self.model_config)
 
 
@@ -120,10 +128,18 @@ class Training:
             self.losses_train.append(loss_train)
             self.accuracies_train.append(accuracy_train)
 
+            A_val, _ = self.forward_propagation(self.parameters, X_val)
+            loss_val = Cost.compute_loss(A_val, Y_val, self.loss)
+            accuracy_val = self.compute_accuracy(A_val, Y_val)
+
+            print(f"Epoch {epoch+1}/{self.epochs} | Loss: {loss_train:.4f} "
+                  f"| Training Accuracy: {accuracy_train*100:.2f}% "
+                  f"| Validation Loss: {loss_val:.4f} | Validation Accuracy: {accuracy_val*100:.2f}%")
+
             if self.validate_training(X_val, Y_val, epoch) == True:
                 break
 
-            if epoch % 200 == 0 or epoch == self.epochs - 1:
+            if epoch % 100 == 0 or epoch == self.epochs - 1:
                 self.print_predictions_comparison(A_train, Y, num_samples=30)
 
 
@@ -132,22 +148,31 @@ class Training:
         A_val, _ = self.forward_propagation(self.parameters, X_val)
         val_loss = Cost.compute_loss(A_val, Y_val, self.loss)
         val_accuracy = self.compute_accuracy(A_val, Y_val)
-        
+
+        if val_accuracy > self.best_accuracy or (val_accuracy == self.best_accuracy and val_loss < self.best_val_loss):
+            self.best_accuracy = val_accuracy
+            self.best_val_loss = val_loss
+            self.best_parameters = {k: v.copy() for k, v in self.parameters.items()}
+            print(f"New best model saved at epoch {epoch+1} with accuracy: {val_accuracy*100:.2f}% and loss: {val_loss:.4f}")
+
         self.losses_validation.append(val_loss)
         self.accuracies_validation.append(val_accuracy)
         
-        if self.early_stopping(epoch) == True:
+        if self.early_stopping(epoch, val_loss, val_accuracy) == True:
             return True
 
-        if epoch % 200 == 0 or epoch == self.epochs - 1:
+        if epoch % 100 == 0:
             print(f"Validation Loss: {val_loss:.4f} | Validation Accuracy: {val_accuracy*100:.2f}%")
-            
+
+        if epoch == self.epochs - 1:
+            print(f"Final epoch: Validation Loss: {self.best_val_loss:.4f} | Validation Accuracy: {self.best_accuracy*100:.2f}%")
+
         return False
         
 
-    def early_stopping(self, epoch) -> bool:
+    def early_stopping(self, epoch, val_loss, val_accuracy) -> bool:
         """ Check if the model should stop training early """
-        if EARLY_STOPPING_LIMIT == 0:
+        if EARLY_STOPPING_LIMIT == 0 or EARLY_STOPPING_LIMIT is None:
             return False
         if epoch > EARLY_STOPPING_LIMIT:
             last_losses = self.losses_validation[-EARLY_STOPPING_LIMIT:]
@@ -156,6 +181,7 @@ class Training:
             
             if all(current_loss > prev_loss for prev_loss in previous_losses):
                 print(f"\nEarly stopping triggered at epoch {epoch}")
+                print(f"Validation Loss: {self.best_val_loss:.4f} | Validation Accuracy: {self.best_accuracy*100:.2f}%")
                 return True
         
         return False
