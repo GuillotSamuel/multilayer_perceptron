@@ -21,7 +21,7 @@ class Initialization:
         parser.add_argument("--learning_rate", type=float, default=LEARNING_RATE, help="Learning rate.")
 
         args = parser.parse_args()
-        
+
         args.num_inputs = count_inputs(training_data, validation_data)
         args.num_outputs = count_outputs(training_results, validation_results)
         
@@ -33,9 +33,6 @@ class Initialization:
         args.weight_initializer = ["he_uniform"] * (len(args.layer) - 2) + ["he_uniform"]
 
         return args
-
-
-    # def parse_config_file(self) -> argparse.Namespace:
 
 
     @staticmethod

@@ -33,6 +33,7 @@ class Activation:
     def sigmoid(x, derivative=False):
         """
         Sigmoid activation function: f(x) = 1 / (1 + e^(-x))
+        Usage: Classic activation function for binary classification
         """
         sigmoid_x = 1 / (1 + np.exp(-x))
         if derivative:
@@ -43,6 +44,7 @@ class Activation:
     def tanh(x, derivative=False):
         """
         Hyperbolic tangent activation function: f(x) = (e^x - e^(-x)) / (e^x + e^(-x))
+        Usage: Sigmoid-like function that outputs values between -1 and 1
         """
         if derivative:
             return 1 - np.tanh(x) ** 2
@@ -52,6 +54,7 @@ class Activation:
     def relu(x, derivative=False):
         """
         Rectified Linear Unit (ReLU): f(x) = max(0, x)
+        Usage: Commonly used activation function in deep learning
         """
         if derivative:
             return np.where(x > 0, 1, 0)
@@ -61,6 +64,7 @@ class Activation:
     def leaky_relu(x, alpha=0.01, derivative=False):
         """
         Leaky ReLU: f(x) = max(αx, x) where α is a small positive constant
+        Usage: Variant of ReLU that allows a small gradient when x < 0
         """
         if derivative:
             return np.where(x > 0, 1, alpha)
@@ -70,6 +74,7 @@ class Activation:
     def elu(x, alpha=1.0, derivative=False):
         """
         Exponential Linear Unit (ELU): f(x) = x if x > 0 else α(e^x - 1)
+        Usage: Variant of ReLU that smooths the transition for negative values
         """
         if derivative:
             return np.where(x > 0, 1, alpha * np.exp(x))
@@ -79,6 +84,7 @@ class Activation:
         """
         Softmax activation function: f(x_i) = e^(x_i) / Σ(e^(x_j))
         Note: derivative not implemented as it requires Jacobian matrix
+        Usage: Commonly used in the output layer of multi-class classification problems
         """
         if derivative:
             raise NotImplementedError("Softmax derivative requires Jacobian matrix calculation")
@@ -89,6 +95,7 @@ class Activation:
     def swish(x, beta=1.0, derivative=False):
         """
         Swish activation function: f(x) = x * sigmoid(βx)
+        Usage: Smooth, non-monotonic function that can outperform ReLU in some cases
         """
         sigmoid_bx = 1 / (1 + np.exp(-beta * x))
         if derivative:
@@ -100,6 +107,7 @@ class Activation:
         """
         Gaussian Error Linear Unit (GELU): f(x) = x * Φ(x)
         where Φ(x) is the cumulative distribution function of the standard normal distribution
+        Usage: Smooth activation function that approximates the Gaussian distribution
         """
         if derivative:
             cdf = 0.5 * (1 + np.tanh(np.sqrt(2/np.pi) * (x + 0.044715 * x**3)))
@@ -111,6 +119,7 @@ class Activation:
     def selu(x, derivative=False):
         """
         Scaled Exponential Linear Unit (SELU)
+        Usage: Self-normalizing activation function that maintains mean and variance
         """
         alpha = 1.6732632423543772848170429916717
         scale = 1.0507009873554804934193349852946
@@ -124,6 +133,7 @@ class Activation:
         """
         Mish activation function: f(x) = x * tanh(softplus(x))
         where softplus(x) = ln(1 + e^x)
+        Usage: Smooth, non-monotonic function that can outperform ReLU in some cases
         """
         softplus = np.log1p(np.exp(x))
         tanh_softplus = np.tanh(softplus)

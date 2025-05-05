@@ -28,12 +28,16 @@ class Data_preprocessor:
     def normalize_data(X, X_min, X_max, X_mean, X_std, method="minmax"):
         """
         Normalize input data using different methods
+        methods:
+        - minmax: Scale all features to the range [0, 1]
+        - zscore: Standardize features to have mean 0 and variance 1
+        # - l2: Scale features to have unit norm
         """
         if method == "minmax":
             return (X - X_min) / (X_max - X_min)
         elif method == "zscore":
             return (X - X_mean) / X_std
-        elif method == "l2":
-            return X / np.sqrt(np.sum(X**2, axis=0))
+        # elif method == "l2":
+        #     return X / np.sqrt(np.sum(X**2, axis=0))
         else:
             raise ValueError(f"Normalization method not supported : {method}")
