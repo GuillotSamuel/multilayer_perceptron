@@ -1,17 +1,18 @@
 import os
 import sys
+import re
 import argparse
 import pandas as pd
 import numpy as np
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from config_g import RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE
+from config_g import CONFIGURATION_FILE, CONFIGURATION_PATH, RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE
 
 
 class Initialization:
 
-    def parse_arguments(training_data, validation_data,
-                        training_results, validation_results) -> argparse.Namespace:
+    def initialize_parameters(training_data, validation_data,
+                            training_results, validation_results) -> argparse.Namespace:
         parser = argparse.ArgumentParser(description="Training Manager Configuration")
 
         parser.add_argument("--layer", type=int, nargs="+", default=LAYER, help="Size of each layer.")
@@ -20,18 +21,102 @@ class Initialization:
         parser.add_argument("--batch_size", type=int, default=BATCH_SIZE, help="Batch size.")
         parser.add_argument("--learning_rate", type=float, default=LEARNING_RATE, help="Learning rate.")
 
-        args = parser.parse_args()
+        if len(sys.argv) > 1:
+            args = parser.parse_args()
+            args.num_inputs = count_inputs(training_data, validation_data)
+            args.num_outputs = count_outputs(training_results, validation_results)
+            args.layer = [args.num_inputs] + args.layer + [args.num_outputs]
+
+            args.activation = ["sigmoid"] * (len(args.layer) - 1)
+            args.activation[-1] = "softmax"
+            args.weight_initializer = ["he_uniform"] * (len(args.layer) - 2) + ["he_uniform"]
+
+            return args
+        else:
+            return Initialization.parse_config_file(training_data, validation_data,
+                                                    training_results, validation_results)
+
+
+    @staticmethod
+    def parse_config_file(training_data, validation_data,
+                          training_results, validation_results) -> argparse.Namespace:
+        """ """
+        args = argparse.Namespace()
 
         args.num_inputs = count_inputs(training_data, validation_data)
         args.num_outputs = count_outputs(training_results, validation_results)
-        
-        args.layer = [args.num_inputs] + args.layer + [args.num_outputs]
-        
-        # Default model settings
-        args.activation = ["sigmoid"] * (len(args.layer) - 1)
-        args.activation[-1] = "softmax"
-        args.weight_initializer = ["he_uniform"] * (len(args.layer) - 2) + ["he_uniform"]
 
+        config_file_path = os.path.join(CONFIGURATION_PATH, CONFIGURATION_FILE)
+
+        try:
+            with open(config_file_path, "r") as f:
+                config_content = f.read()
+
+            layers_info = []
+            activation_funcs = []
+            weight_initializers = []
+
+            layer_pattern = r"layers\.DenseLayer\(([^)]+)\)"
+            layer_matches = re.findall(layer_pattern, config_content)
+
+            for layer_args in layer_matches:
+                if "input_shape" in layer_args:
+                    neuron_count = args.num_inputs
+                elif "output_shape" in layer_args:
+                    neuron_count = args.num_outputs
+                else:
+                    neuron_match = re.search(r"^(\d+)", layer_args)
+                    if neuron_match:
+                        neuron_count = int(neuron_match.group(1))
+                    else:
+                        raise ValueError(f"Could not parse neuron count from: {layer_args}")
+                
+                layers_info.append(neuron_count)
+                
+                activation_match = re.search(r"activation=[\'\"]([^\'\"]+)", layer_args)
+                if activation_match:
+                    activation_funcs.append(activation_match.group(1))
+                else:
+                    activation_funcs.append("linear")
+                
+                initializer_match = re.search(r"weights_initializer=[\'\"]([^\'\"]+)", layer_args)
+                if initializer_match:
+                    initializer = initializer_match.group(1)
+                    initializer = re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', initializer).lower()
+                    weight_initializers.append(initializer)
+                else:
+                    weight_initializers.append("he_uniform")
+            
+            args.layer = layers_info
+            
+            args.activation = activation_funcs[1:]
+            
+            args.weight_initializer = weight_initializers[1:]
+            
+            lr_match = re.search(r"learning_rate=([0-9.]+)", config_content)
+            args.learning_rate = float(lr_match.group(1)) if lr_match else LEARNING_RATE
+            
+            batch_match = re.search(r"batch_size=(\d+)", config_content)
+            args.batch_size = int(batch_match.group(1)) if batch_match else BATCH_SIZE
+            
+            epochs_match = re.search(r"epochs=(\d+)", config_content)
+            args.epochs = int(epochs_match.group(1)) if epochs_match else EPOCHS
+            
+            loss_match = re.search(r"loss=[\'\"]([^\'\"]+)", config_content)
+            args.loss = loss_match.group(1) if loss_match else LOSS
+            
+        except Exception as e:
+            print(f"Error parsing config file: {e}")
+            hidden_layers = LAYER
+            args.layer = [args.num_inputs] + hidden_layers + [args.num_outputs]
+            args.activation = ["sigmoid"] * (len(args.layer) - 1)
+            args.activation[-1] = "softmax"
+            args.weight_initializer = ["he_uniform"] * (len(args.layer) - 1)
+            args.epochs = EPOCHS
+            args.loss = LOSS
+            args.batch_size = BATCH_SIZE
+            args.learning_rate = LEARNING_RATE
+        
         return args
 
 

@@ -1,6 +1,8 @@
 # config.py for the Wisconsin Diagnostic Breast Cancer (WDBC) case
 
 # Data files configuration
+CONFIGURATION_PATH = "configuration"
+CONFIGURATION_FILE = "network_config.txt"
 RAW_DATA_PATH = "data/raw"
 RAW_DATA_FILE = "data.csv"
 PROCESSED_DATA_PATH = "data/processed"

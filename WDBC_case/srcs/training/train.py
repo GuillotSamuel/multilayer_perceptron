@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from config_g import RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LOGS_FOLDER, LOSS_LOGS_FILE, MODEL_PATH, MODEL_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE, EARLY_STOPPING_LIMIT
+from config_g import CONFIGURATION_FILE, RAW_DATA_PATH, PROCESSED_DATA_PATH, TRAINING_DATA_FILE, VALIDATION_DATA_FILE, TRAINING_RESULTS_FILE, VALIDATION_RESULTS_FILE, LOGS_FOLDER, LOSS_LOGS_FILE, MODEL_PATH, MODEL_FILE, LAYER, EPOCHS, LOSS, BATCH_SIZE, LEARNING_RATE, MODEL_PATH, MODEL_FILE, EARLY_STOPPING_LIMIT
 
 from srcs.training.activation import Activation
 from srcs.training.cost import Cost
@@ -24,7 +24,7 @@ class Training:
         self.validation_data = Utils.load_file(f"{PROCESSED_DATA_PATH}/{VALIDATION_DATA_FILE}")
         self.validation_results = Utils.load_file(f"{PROCESSED_DATA_PATH}/{VALIDATION_RESULTS_FILE}")
         
-        args = Initialization.parse_arguments(self.training_data, self.validation_data,
+        args = Initialization.initialize_parameters(self.training_data, self.validation_data,
                                               self.training_results, self.validation_results)
 
         self.layers = args.layer
