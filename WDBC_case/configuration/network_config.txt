@@ -2,7 +2,6 @@ network = model.createNetwork([
 layers.DenseLayer(input_shape, activation='sigmoid'),
 layers.DenseLayer(24, activation='sigmoid', weights_initializer='heUniform'),
 layers.DenseLayer(24, activation='sigmoid', weights_initializer='heUniform'),
-layers.DenseLayer(24, activation='sigmoid', weights_initializer='heUniform'),
 layers.DenseLayer(output_shape, activation='softmax', weights_initializer='heUniform')
 ])
 

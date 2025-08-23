@@ -14,7 +14,7 @@ class Cost:
         """
         m = Y.shape[1]
         epsilon = 1e-15
-        
+
         if cost_function == "binaryCrossentropy":
             cost = -np.mean(Y * np.log(A + epsilon) + (1 - Y) * np.log(1 - A + epsilon))
         elif cost_function == "categoricalCrossentropy":
@@ -23,5 +23,5 @@ class Cost:
             cost = np.mean(np.square(A - Y))
         else:
             raise ValueError("Cost function not supported")
-            
+
         return cost
