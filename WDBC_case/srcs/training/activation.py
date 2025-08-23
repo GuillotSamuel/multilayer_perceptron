@@ -6,16 +6,24 @@ class Activation:
     @staticmethod
     def activation_g(Z, activation_type, derivative=False):
         if activation_type == "sigmoid":
+            #Maps any value into a number between 0 and 1.
+            # Good for probabilities (yes/no outputs).
             A = Activation.sigmoid(Z, derivative)
         elif activation_type == "tanh":
+            # Maps values between -1 and 1.
+            # Similar to sigmoid but centered at 0, which often helps learning faster.
             A = Activation.tanh(Z, derivative)
         elif activation_type == "relu":
+            # Outputs 0 for negative values, and the value itself for positives.
+            # Very fast and popular, especially in deep networks.
             A = Activation.relu(Z, derivative)
         # elif activation_type == "leakyRelu":
         #     A = Activation.leaky_relu(Z, derivative)
         # elif activation_type == "elu":
-            A = Activation.elu(Z, derivative)
+        #     A = Activation.elu(Z, derivative)
         elif activation_type == "softmax":
+            # Turns a vector of numbers into probabilities that sum to 1.
+            # Used for multi-class classification (pick the most likely class).
             A = Activation.softmax(Z)
         # elif activation_type == "swish":
         #     A = Activation.swish(Z, derivative)
