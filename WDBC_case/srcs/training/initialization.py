@@ -129,17 +129,36 @@ class Initialization:
 
         for l in range(1, L):
             if weight_initializer[l - 1] == "he":
+                # He normal init:
+                # → Generates random values from a normal (bell-shaped) distribution
+                # → Values are a bit larger than Xavier, scaled for ReLU activations
+                # → Good when you use ReLU because it keeps the signal strong enough
                 parameters[f'W{l}'] = np.random.randn(layer_dims[l], layer_dims[l-1]) * np.sqrt(2./layer_dims[l-1])
             elif weight_initializer[l - 1] == "he_uniform":
+                # He uniform init:
+                # → Generates random values from a uniform distribution (flat between -limit and +limit)
+                # → Values spread evenly in a small range, also adapted for ReLU
                 limit = np.sqrt(6. / layer_dims[l-1])
                 parameters[f'W{l}'] = np.random.uniform(-limit, limit, (layer_dims[l], layer_dims[l-1]))
             elif weight_initializer[l - 1] == "xavier":
+                # Xavier init:
+                # → Generates random values from a normal distribution (around 0)
+                # → Values are smaller than He init, balanced for sigmoid/tanh
+                # → Helps avoid saturation where neurons stop learning
                 parameters[f'W{l}'] = np.random.randn(layer_dims[l], layer_dims[l-1]) * np.sqrt(1./layer_dims[l-1])
             elif weight_initializer[l - 1] == "zero":
+                # Zero init:
+                # → All weights are set to 0
+                # → BAD for training: all neurons behave the same, no learning happens
+                # → Only useful for testing/debugging
                 parameters[f'W{l}'] = np.zeros((layer_dims[l], layer_dims[l-1]))
             else:
+                # Small random init (default/old method):
+                # → Generates very small random numbers close to 0
+                # → Works for tiny networks, but not good for deep ones
                 parameters[f'W{l}'] = np.random.randn(layer_dims[l], layer_dims[l-1]) * 0.01
 
+            # Biases are always initialized to 0
             parameters[f'b{l}'] = np.zeros((layer_dims[l], 1))
 
         return parameters
@@ -158,5 +177,5 @@ def count_inputs(training_data, validation_data) -> int:
 
     if validation_data.shape[1] != num_inputs:
         raise ValueError("Training inputs don't match with Validation inputs.")
-    
+
     return num_inputs

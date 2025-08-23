@@ -11,20 +11,20 @@ class Activation:
             A = Activation.tanh(Z, derivative)
         elif activation_type == "relu":
             A = Activation.relu(Z, derivative)
-        elif activation_type == "leakyRelu":
-            A = Activation.leaky_relu(Z, derivative)
-        elif activation_type == "elu":
+        # elif activation_type == "leakyRelu":
+        #     A = Activation.leaky_relu(Z, derivative)
+        # elif activation_type == "elu":
             A = Activation.elu(Z, derivative)
         elif activation_type == "softmax":
             A = Activation.softmax(Z)
-        elif activation_type == "swish":
-            A = Activation.swish(Z, derivative)
-        elif activation_type == "gelu":
-            A = Activation.gelu(Z, derivative)
-        elif activation_type == "selu":
-            A = Activation.selu(Z, derivative)
-        elif activation_type == "mish":
-            A = Activation.mish(Z, derivative)
+        # elif activation_type == "swish":
+        #     A = Activation.swish(Z, derivative)
+        # elif activation_type == "gelu":
+        #     A = Activation.gelu(Z, derivative)
+        # elif activation_type == "selu":
+        #     A = Activation.selu(Z, derivative)
+        # elif activation_type == "mish":
+        #     A = Activation.mish(Z, derivative)
         else:
             raise ValueError("Activation function not supported")
         return A

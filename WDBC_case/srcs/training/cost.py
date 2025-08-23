@@ -16,7 +16,7 @@ class Cost:
         epsilon = 1e-15
         
         if cost_function == "binaryCrossentropy":
-            cost = -np.mean(np.sum(Y * np.log(A + epsilon), axis=1))
+            cost = -np.mean(Y * np.log(A + epsilon) + (1 - Y) * np.log(1 - A + epsilon))
         elif cost_function == "categoricalCrossentropy":
             cost = -np.mean(np.sum(Y * np.log(A + epsilon), axis=1))
         elif cost_function == "mse":

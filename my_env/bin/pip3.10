@@ -1,4 +1,4 @@
-#!/home/sguillot/Travail/multilayer_perceptron/my_env/bin/python3
+#!/home/sguillot/Travail/multilayer_perceptron/my_env/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
