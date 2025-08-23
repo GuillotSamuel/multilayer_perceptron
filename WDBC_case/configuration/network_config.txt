@@ -5,5 +5,5 @@ layers.DenseLayer(24, activation='sigmoid', weights_initializer='heUniform'),
 layers.DenseLayer(output_shape, activation='softmax', weights_initializer='heUniform')
 ])
 
-model.fit(network, data_train, data_valid, loss='binaryCrossentropy', learning_rate=0.0314, batch_size=8,
+model.fit(network, data_train, data_valid, loss='categoricalCrossentropy', learning_rate=0.0314, batch_size=8,
 epochs=2000)
