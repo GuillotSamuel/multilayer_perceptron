@@ -6,7 +6,7 @@ class Activation:
     @staticmethod
     def activation_g(Z, activation_type, derivative=False):
         if activation_type == "sigmoid":
-            #Maps any value into a number between 0 and 1.
+            # Maps any value into a number between 0 and 1.
             # Good for probabilities (yes/no outputs).
             A = Activation.sigmoid(Z, derivative)
         elif activation_type == "tanh":
